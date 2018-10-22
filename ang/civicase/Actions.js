@@ -13,7 +13,7 @@
       },
       link: function ($scope, element, attributes) {
         var ts = CRM.ts('civicase');
-        var multi = $scope.multi = attributes.multiple;
+        var multi = $scope.multi = attributes.civicaseActionsMultiple;
 
         $scope.isActionEnabled = function (action) {
           return (!action.number || $scope.cases.length === +action.number);
