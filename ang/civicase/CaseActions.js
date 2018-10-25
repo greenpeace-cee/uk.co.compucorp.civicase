@@ -18,14 +18,14 @@
 
     function civicaseCaseActionsLink ($scope, element, attributes) {
       var ts = CRM.ts('civicase');
-      var multi = $scope.multi = attributes.civicaseActionsMultiple;
+      var bulkMode = $scope.bulkMode = attributes.bulkMode;
 
       $scope.isActionEnabled = function (action) {
         return (!action.number || $scope.cases.length === +action.number);
       };
 
       $scope.isActionAllowed = function (action) {
-        return (!action.number || ((multi && action.number > 1) || (!multi && action.number === 1)));
+        return (!action.number || ((bulkMode && action.number > 1) || (!bulkMode && action.number === 1)));
       };
 
       // Perform bulk actions
@@ -350,7 +350,7 @@
         } else {
           $scope.caseActions = _.cloneDeep(CRM.civicase.caseActions);
 
-          if (!$scope.multi) {
+          if (!$scope.bulkMode) {
             _.remove($scope.caseActions, {action: 'changeStatus(cases)'});
           }
         }
