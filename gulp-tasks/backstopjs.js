@@ -20,6 +20,9 @@ var PluginError = require('plugin-error');
 var puppeteer = require('puppeteer');
 
 var BACKSTOP_DIR = 'tests/backstop_data/';
+var CACHE = {
+  contactIdsMap: {}
+};
 var CONFIG_TPL = {
   'url': 'http://%{site-host}',
   'drush_alias': '',
@@ -30,6 +33,10 @@ var FILES = {
   temp: path.join(BACKSTOP_DIR, 'backstop.temp.json'),
   tpl: path.join(BACKSTOP_DIR, 'backstop.tpl.json')
 };
+var URL_VAR_REPLACERS = [
+  replaceRootUrlVar,
+  replaceContactIdVar
+];
 
 /**
  * Returns the list of the scenarios from
@@ -40,7 +47,6 @@ var FILES = {
  * @return {Array}
  */
 function buildScenariosList (group) {
-  const config = siteConfig();
   const dirPath = path.join(BACKSTOP_DIR, 'scenarios');
 
   return _(fs.readdirSync(dirPath))
@@ -52,10 +58,12 @@ function buildScenariosList (group) {
     })
     .flatten()
     .map((scenario, index, scenarios) => {
-      return _.assign(scenario, {
+      const url = replaceUrlVars(scenario.url);
+
+      return _.assign({}, scenario, {
         cookiePath: path.join(BACKSTOP_DIR, 'cookies', 'admin.json'),
         count: '(' + (index + 1) + ' of ' + scenarios.length + ')',
-        url: scenario.url.replace('{url}', config.url)
+        url: url
       });
     })
     .value();
@@ -97,6 +105,57 @@ function createTempConfig () {
   });
 
   return JSON.stringify(content);
+}
+
+/**
+ * Replaces the `{contactId:Albert Adams}` var with the contact id for the contact.
+ *
+ * @param {string} url the scenario url.
+ * @param {object} config the site config options.
+ * @return {string}
+ */
+function replaceContactIdVar (url, config) {
+  return url.replace(/{contactId:(.+)}/, function (stringMatch, contactName) {
+    var contactId = CACHE.contactIdsMap[contactName];
+
+    if (!contactId) {
+      var cmd = `cv api contact.getsingle display_name=${contactName} option.limit=1`;
+      var contactInfo = JSON.parse(execSync(cmd, { cwd: config.root }));
+      contactId = contactInfo.id;
+      CACHE.contactIdsMap[contactName] = contactId;
+    }
+
+    return contactId;
+  });
+}
+
+/**
+ * Replaces the `{url}` var with the site url as defined in the config file.
+ *
+ * @param {string} url the scenario url.
+ * @param {object} config the site config options.
+ * @return {string}
+ */
+function replaceRootUrlVar (url, config) {
+  return url.replace('{url}', config.url);
+}
+
+/**
+ * Runs a series of URL var replaces for the scenario URL. A URL var would look
+ * like `{url}/contact` and can be replaced into a string similar to
+ * `http://example.com/contact`.
+ *
+ * @param {string} url the original scenario url with all vars intact.
+ * @return {string} the scenario url with vars replaced.
+ */
+function replaceUrlVars (url) {
+  const config = siteConfig();
+
+  URL_VAR_REPLACERS.forEach(function (urlVarReplacer) {
+    url = urlVarReplacer(url, config);
+  });
+
+  return url;
 }
 
 /**
