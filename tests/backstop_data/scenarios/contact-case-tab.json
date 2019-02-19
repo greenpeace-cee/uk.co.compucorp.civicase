@@ -3,17 +3,18 @@
     {
       "label": "Contact - Case Tab",
       "url": "{url}/civicrm/contact/view?cid={contactId:Betty Adams}&selectedChild=case",
-      "onReadyScript": "contacts/contact-case-tab-details.js"
+      "readySelector": ".civicase__contact-cases-tab-container"
     },
     {
       "label": "Contact - Case Tab - loading",
       "url": "{url}/civicrm/contact/view?cid={contactId:Betty Adams}&selectedChild=case",
-      "onReadyScript": "contacts/contact-case-tab.js"
+      "readySelector": ".civicase__contact-cases-tab-container",
+      "captureLoadingScreen": true
     },
     {
       "label": "Contact - Case Tab - Load More loading icon",
       "url": "{url}/civicrm/contact/view?cid={contactId:Betty Adams}&selectedChild=case",
-      "onReadyScript": "contacts/contact-case-tab-load-more.js"
+      "clickSelector": ".civicase__contact-case-tab__case-list__footer button"
     }
   ]
 }
