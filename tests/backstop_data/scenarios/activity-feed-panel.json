@@ -54,7 +54,7 @@
   },
   {
     "label": "Activity Feed Panel - On Contact Page",
-    "url": "{url}/civicrm/contact/search?reset=1",
+    "url": "{url}/civicrm/contact/view?cid={contactId:Betty Adams}&selectedChild=activity",
     "onReadyScript": "activity-feed-panel/on-contact-page.js"
   }]
 }
