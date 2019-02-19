@@ -2,17 +2,17 @@
   "scenarios": [
     {
       "label": "Contact - Case Tab",
-      "url": "{url}/civicrm/contact/view?cid={contactId:Betty Adams}",
+      "url": "{url}/civicrm/contact/view?cid={contactId:Betty Adams}&selectedChild=case",
       "onReadyScript": "contacts/contact-case-tab-details.js"
     },
     {
       "label": "Contact - Case Tab - loading",
-      "url": "{url}/civicrm/contact/view?cid={contactId:Betty Adams}",
+      "url": "{url}/civicrm/contact/view?cid={contactId:Betty Adams}&selectedChild=case",
       "onReadyScript": "contacts/contact-case-tab.js"
     },
     {
       "label": "Contact - Case Tab - Load More loading icon",
-      "url": "{url}/civicrm/contact/view?cid={contactId:Betty Adams}",
+      "url": "{url}/civicrm/contact/view?cid={contactId:Betty Adams}&selectedChild=case",
       "onReadyScript": "contacts/contact-case-tab-load-more.js"
     }
   ]
