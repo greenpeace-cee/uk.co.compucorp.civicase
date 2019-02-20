@@ -18,14 +18,12 @@
     },
     {
       "label": "Manage Cases - Case Overview - Loading",
-      "url": "{url}/civicrm/case/a/#/case/list",
-      "waitForLoadingComplete": ".civicase__case-list-panel",
-      "clickSelector": ".civicase__case-list-table tbody tr:first-child .civicase__case-card"
+      "url": "{url}/civicrm/case/a/#/case/list?caseId={caseId}",
+      "captureLoadingScreen": true
     },
     {
       "label": "Manage Cases - Selected Case",
-      "url": "{url}/civicrm/case/a/#/case/list",
-      "onReadyScript": "manage-cases/select-case.js"
+      "url": "{url}/civicrm/case/a/#/case/list?caseId={caseId}"
     },
     {
       "label": "Manage Cases - Case Overview - Full Screen",
