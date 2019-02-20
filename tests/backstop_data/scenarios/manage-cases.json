@@ -8,17 +8,19 @@
     {
       "label": "Manage Cases - List",
       "url": "{url}/civicrm/case/a/#/case/list",
-      "onReadyScript": "manage-cases/case-list.js"
+      "waitForLoadingComplete": ".civicase__case-list-panel"
     },
     {
       "label": "Manage Cases - Other Criterion/Find Case",
       "url": "{url}/civicrm/case/a/#/case/list",
-      "onReadyScript": "manage-cases/other-criterion.js"
+      "waitForLoadingComplete": ".civicase__case-list-panel",
+      "clickSelector": ".civicase__case-filter-panel__button[ng-show=\"!expanded\"]"
     },
     {
       "label": "Manage Cases - Case Overview - Loading",
       "url": "{url}/civicrm/case/a/#/case/list",
-      "onReadyScript": "manage-cases/overview-loading.js"
+      "waitForLoadingComplete": ".civicase__case-list-panel",
+      "clickSelector": ".civicase__case-list-table tbody tr:first-child .civicase__case-card"
     },
     {
       "label": "Manage Cases - Selected Case",

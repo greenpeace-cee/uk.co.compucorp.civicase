@@ -9,7 +9,7 @@ module.exports = async (page, scenario, vp) => {
   await utility.waitForAngular();
 
   if (!scenario.captureLoadingScreen) {
-    await utility.waitForLoadingComplete();
+    await utility.waitForLoadingComplete(scenario.waitForLoadingComplete);
   }
 
   await mouseEventsHelper(page, scenario);
