@@ -27,8 +27,9 @@
     },
     {
       "label": "Manage Cases - Case Overview - Full Screen",
-      "url": "{url}/civicrm/case/a/#/case/list",
-      "onReadyScript": "manage-cases/overview-full.js"
+      "url": "{url}/civicrm/case/a/#/case/list?caseId={caseId}",
+      "clickSelector": ".civicase__case-header__expand_button",
+      "delay": 300
     }
   ]
 }
