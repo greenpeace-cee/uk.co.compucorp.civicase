@@ -1,33 +1,34 @@
 {
   "scenarios": [
-  {
-    "label": "Manage Cases - List Loading",
-    "url": "{url}/civicrm/case/a/#/case/list",
-    "captureLoadingScreen": true
-  },
-  {
-    "label": "Manage Cases - List",
-    "url": "{url}/civicrm/case/a/#/case/list",
-    "onReadyScript": "manage-cases/case-list.js"
-  },
-  {
-    "label": "Manage Cases - Other Criterion/Find Case",
-    "url": "{url}/civicrm/case/a/#/case/list",
-    "onReadyScript": "manage-cases/other-criterion.js"
-  },
-  {
-    "label": "Manage Cases - Case Overview - Loading",
-    "url": "{url}/civicrm/case/a/#/case/list",
-    "onReadyScript": "manage-cases/overview-loading.js"
-  },
-  {
-    "label": "Manage Cases - Selected Case",
-    "url": "{url}/civicrm/case/a/#/case/list",
-    "onReadyScript": "manage-cases/select-case.js"
-  },
-  {
-    "label": "Manage Cases - Case Overview - Full Screen",
-    "url": "{url}/civicrm/case/a/#/case/list",
-    "onReadyScript": "manage-cases/overview-full.js"
-  }]
+    {
+      "label": "Manage Cases - List Loading",
+      "url": "{url}/civicrm/case/a/#/case/list",
+      "captureLoadingScreen": true
+    },
+    {
+      "label": "Manage Cases - List",
+      "url": "{url}/civicrm/case/a/#/case/list",
+      "onReadyScript": "manage-cases/case-list.js"
+    },
+    {
+      "label": "Manage Cases - Other Criterion/Find Case",
+      "url": "{url}/civicrm/case/a/#/case/list",
+      "onReadyScript": "manage-cases/other-criterion.js"
+    },
+    {
+      "label": "Manage Cases - Case Overview - Loading",
+      "url": "{url}/civicrm/case/a/#/case/list",
+      "onReadyScript": "manage-cases/overview-loading.js"
+    },
+    {
+      "label": "Manage Cases - Selected Case",
+      "url": "{url}/civicrm/case/a/#/case/list",
+      "onReadyScript": "manage-cases/select-case.js"
+    },
+    {
+      "label": "Manage Cases - Case Overview - Full Screen",
+      "url": "{url}/civicrm/case/a/#/case/list",
+      "onReadyScript": "manage-cases/overview-full.js"
+    }
+  ]
 }
