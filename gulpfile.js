@@ -57,7 +57,7 @@ gulp.task('watch', watchTask);
 /**
  * Setups required BackstopJS data.
  */
-gulp.task('backstop:setup-data', backstopJSTask.setupData);
+gulp.task('backstopjs:setup-data', backstopJSTask.setupData);
 
 /**
  * Runs sass and test task

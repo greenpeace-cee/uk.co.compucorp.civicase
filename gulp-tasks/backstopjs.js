@@ -36,6 +36,8 @@ var FILES = {
   tpl: path.join(BACKSTOP_DIR, 'backstop.tpl.json')
 };
 var RECORD_IDENTIFIERS = {
+  customGroupTitle: 'Backstop Case Custom Group',
+  customFieldLabel: 'Backstop Case Custom Field',
   emptyCaseSubject: 'Backstop Empty Case',
   emptyCaseTypeName: 'backstop_empty_case_type',
   emptyContactDisplayName: 'Emil Backstop'
@@ -49,6 +51,8 @@ var URL_VAR_REPLACERS = [
 var createUniqueCase = createUniqueRecordFactory('Case', 'subject');
 var createUniqueCaseType = createUniqueRecordFactory('CaseType', 'name');
 var createUniqueContact = createUniqueRecordFactory('Contact', 'display_name');
+var createUniqueCustomField = createUniqueRecordFactory('CustomField', 'label');
+var createUniqueCustomGroup = createUniqueRecordFactory('CustomGroup', 'title');
 
 /**
  * Returns the list of the scenarios from
@@ -356,11 +360,21 @@ function setupData () {
     contact_type: 'Individual',
     display_name: RECORD_IDENTIFIERS.emptyContactDisplayName
   });
+  var customGroup = createUniqueCustomGroup({
+    title: RECORD_IDENTIFIERS.customGroupTitle,
+    extends: 'Case'
+  });
 
   createUniqueCase({
     case_type_id: caseType.id,
     contact_id: contact.id,
     subject: RECORD_IDENTIFIERS.emptyCaseSubject
+  });
+  createUniqueCustomField({
+    custom_group_id: customGroup.id,
+    label: RECORD_IDENTIFIERS.customFieldLabel,
+    data_type: 'String',
+    html_type: 'Text'
   });
 }
 

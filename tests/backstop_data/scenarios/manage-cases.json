@@ -39,6 +39,11 @@
       "label": "Manage Cases - Case Overview - Activity Calendar open",
       "url": "{url}/civicrm/case/a/#/case/list?caseId={caseId}",
       "clickSelector": ".civicase__activities-calendar__day-status"
+    },
+    {
+      "label": "Manage Cases - Case Overview - Edit Custom Data",
+      "url": "{url}/civicrm/case/a/#/case/list?caseId={caseId}",
+      "clickSelector": ".civicase__case-custom-fields__container .crm-editable-enabled"
     }
   ]
 }
