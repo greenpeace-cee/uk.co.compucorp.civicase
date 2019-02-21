@@ -80,6 +80,7 @@
     "karma-ng-html2js-preprocessor": "^1.0.0",
     "lint-staged": "^7.2.0",
     "lodash": "^4.17.10",
+    "moment": "^2.24.0",
     "path": "^0.12.7",
     "plugin-error": "^1.0.1",
     "postcss-discard-duplicates": "^2.1.0",

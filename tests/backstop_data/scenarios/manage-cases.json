@@ -17,13 +17,13 @@
       "clickSelector": ".civicase__case-filter-panel__button[ng-show=\"!expanded\"]"
     },
     {
+      "label": "Manage Cases - Case Overview",
+      "url": "{url}/civicrm/case/a/#/case/list?caseId={caseId}"
+    },
+    {
       "label": "Manage Cases - Case Overview - Loading",
       "url": "{url}/civicrm/case/a/#/case/list?caseId={caseId}",
       "captureLoadingScreen": true
-    },
-    {
-      "label": "Manage Cases - Selected Case",
-      "url": "{url}/civicrm/case/a/#/case/list?caseId={caseId}"
     },
     {
       "label": "Manage Cases - Case Overview - Full Screen",
@@ -34,6 +34,11 @@
     {
       "label": "Manage Cases - Case Overview - Empty Case",
       "url": "{url}/civicrm/case/a/#/case/list?caseId={emptyCaseId}"
+    },
+    {
+      "label": "Manage Cases - Case Overview - Activity Calendar open",
+      "url": "{url}/civicrm/case/a/#/case/list?caseId={caseId}",
+      "clickSelector": ".civicase__activities-calendar__day-status"
     }
   ]
 }

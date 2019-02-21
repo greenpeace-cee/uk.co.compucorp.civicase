@@ -15,6 +15,7 @@ var file = require('gulp-file');
 var fs = require('fs');
 var gulp = require('gulp');
 var notify = require('gulp-notify');
+var moment = require('moment');
 var path = require('path');
 var PluginError = require('plugin-error');
 var puppeteer = require('puppeteer');
@@ -206,13 +207,12 @@ function defineBackstopJsAction (action) {
  * it using `cv api`, store the record id, and return it.
  *
  * @param {String} cacheKey the cache key where the record id is stored.
- * @param {String} entityName the name of the enity the record belongs to.
- * @param {Object} queryData the query information used to retrieved the record.
- * @return {Number}
+ * @param {Function} callback a callback function that should return the record id
+ *   if none is stored.
  */
-function getRecordIdFromCacheOrCvApi (cacheKey, entityName, queryData) {
+function getRecordIdFromCacheOrCallback (cacheKey, callback) {
   if (!CACHE[cacheKey]) {
-    CACHE[cacheKey] = cvApi(entityName, 'get', queryData).id;
+    CACHE[cacheKey] = callback();
   }
 
   return CACHE[cacheKey];
@@ -227,16 +227,25 @@ function getRecordIdFromCacheOrCvApi (cacheKey, entityName, queryData) {
  */
 function replaceCaseIdVar (url, config) {
   return url.replace('{caseId}', function () {
-    var caseId = CACHE.caseId;
+    return getRecordIdFromCacheOrCallback('caseId', () => {
+      var startDate = moment().startOf('month').format('YYYY-MM-DD');
+      var endDate = moment().endOf('month').format('YYYY-MM-DD');
 
-    if (!caseId) {
-      var cmd = `cv api Case.getsingle is_deleted=0 status_id=Open option.limit=1`;
-      var caseData = JSON.parse(execSync(cmd, { cwd: config.root }));
-      caseId = caseData.id;
-      CACHE.caseId = caseId;
-    }
+      var activity = cvApi('Activity', 'get', {
+        'sequential': 1,
+        'activity_date_time': { BETWEEN: [ startDate, endDate ] },
+        'case_id.is_deleted': 0,
+        'case_id.status_id': 'Scheduled',
+        'return': [ 'case_id' ],
+        'options': { 'limit': 1 }
+      });
 
-    return caseId;
+      if (!activity.count) {
+        throw new Error('Please add an activity for the current month and for a case with a "Scheduled" status');
+      }
+
+      return activity.count && activity.values[0].case_id[0];
+    });
   });
 }
 
@@ -248,8 +257,12 @@ function replaceCaseIdVar (url, config) {
  */
 function replaceEmptyCaseIdVar (url) {
   return url.replace('{emptyCaseId}', function () {
-    return getRecordIdFromCacheOrCvApi('emptyCaseId', 'Case', {
-      subject: RECORD_IDENTIFIERS.emptyCaseSubject
+    return getRecordIdFromCacheOrCallback('emptyCaseId', () => {
+      var caseRecord = cvApi('Case', 'get', {
+        subject: RECORD_IDENTIFIERS.emptyCaseSubject
+      });
+
+      return caseRecord.id;
     });
   });
 }
