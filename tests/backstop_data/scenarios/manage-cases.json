@@ -30,6 +30,10 @@
       "url": "{url}/civicrm/case/a/#/case/list?caseId={caseId}",
       "clickSelector": ".civicase__case-header__expand_button",
       "delay": 300
+    },
+    {
+      "label": "Manage Cases - Case Overview - Empty Case",
+      "url": "{url}/civicrm/case/a/#/case/list?caseId={emptyCaseId}"
     }
   ]
 }

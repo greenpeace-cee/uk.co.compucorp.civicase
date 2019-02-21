@@ -21,7 +21,8 @@ var puppeteer = require('puppeteer');
 
 var BACKSTOP_DIR = 'tests/backstop_data/';
 var CACHE = {
-  caseId: null
+  caseId: null,
+  emptyCaseId: null
 };
 var CONFIG_TPL = {
   'url': 'http://%{site-host}',
@@ -33,8 +34,14 @@ var FILES = {
   temp: path.join(BACKSTOP_DIR, 'backstop.temp.json'),
   tpl: path.join(BACKSTOP_DIR, 'backstop.tpl.json')
 };
+var RECORD_IDENTIFIERS = {
+  emptyCaseSubject: 'Backstop Empty Case',
+  emptyCaseTypeName: 'backstop_empty_case_type',
+  emptyContactDisplayName: 'Emil Backstop'
+};
 var URL_VAR_REPLACERS = [
   replaceCaseIdVar,
+  replaceEmptyCaseIdVar,
   replaceRootUrlVar
 ];
 
@@ -195,11 +202,28 @@ function defineBackstopJsAction (action) {
 }
 
 /**
+ * Tries to get the record id from the cache first and if not found will retrieve
+ * it using `cv api`, store the record id, and return it.
+ *
+ * @param {String} cacheKey the cache key where the record id is stored.
+ * @param {String} entityName the name of the enity the record belongs to.
+ * @param {Object} queryData the query information used to retrieved the record.
+ * @return {Number}
+ */
+function getRecordIdFromCacheOrCvApi (cacheKey, entityName, queryData) {
+  if (!CACHE[cacheKey]) {
+    CACHE[cacheKey] = cvApi(entityName, 'get', queryData).id;
+  }
+
+  return CACHE[cacheKey];
+}
+
+/**
  * Replaces the `{caseId}` var with the id of the first non deleted, open case.
  *
- * @param {string} url the scenario url.
- * @param {object} config the site config options.
- * @return {string}
+ * @param {String} url the scenario url.
+ * @param {Object} config the site config options.
+ * @return {String}
  */
 function replaceCaseIdVar (url, config) {
   return url.replace('{caseId}', function () {
@@ -213,6 +237,20 @@ function replaceCaseIdVar (url, config) {
     }
 
     return caseId;
+  });
+}
+
+/**
+ * Replaces the `{emptyCaseId}` var with the id for the empty case created by the setup script.
+ *
+ * @param {string} url the scenario url.
+ * @return {String}
+ */
+function replaceEmptyCaseIdVar (url) {
+  return url.replace('{emptyCaseId}', function () {
+    return getRecordIdFromCacheOrCvApi('emptyCaseId', 'Case', {
+      subject: RECORD_IDENTIFIERS.emptyCaseSubject
+    });
   });
 }
 
@@ -292,7 +330,7 @@ function runBackstopJS (command) {
  */
 function setupData () {
   var caseType = createUniqueCaseType({
-    name: 'backstop_empty_case_type',
+    name: RECORD_IDENTIFIERS.emptyCaseTypeName,
     title: 'Backstop Empty Case Type',
     definition: {
       activityTypes: [],
@@ -303,13 +341,13 @@ function setupData () {
   });
   var contact = createUniqueContact({
     contact_type: 'Individual',
-    display_name: 'Emil Backstop'
+    display_name: RECORD_IDENTIFIERS.emptyContactDisplayName
   });
 
   createUniqueCase({
     case_type_id: caseType.id,
     contact_id: contact.id,
-    subject: 'Backstop Empty Case'
+    subject: RECORD_IDENTIFIERS.emptyCaseSubject
   });
 }
 
