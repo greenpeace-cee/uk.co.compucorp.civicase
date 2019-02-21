@@ -53,6 +53,11 @@
         ".civicase__activity-dropdown",
         ".civicase__activity-dropdown"
       ]
+    },
+    {
+      "label": "Manage Cases - Case Overview - People tab",
+      "url": "{url}/civicrm/case/a/#/case/list?caseId={caseId}",
+      "clickSelector": ".civicase__case-body_tab li[ng-repeat=\"tab in tabs\"]:nth-child(3) a"
     }
   ]
 }
