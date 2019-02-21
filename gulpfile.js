@@ -52,7 +52,12 @@ gulp.task('watch', watchTask);
  * backstopjs:openReport: Opens reports in the browser
  * backstopjs:approve: Approves reports
  */
-['reference', 'test', 'openReport', 'approve'].map(backstopJSTask);
+['reference', 'test', 'openReport', 'approve'].map(backstopJSTask.defineAction);
+
+/**
+ * Setups required BackstopJS data.
+ */
+gulp.task('backstop:setup-data', backstopJSTask.setupData);
 
 /**
  * Runs sass and test task

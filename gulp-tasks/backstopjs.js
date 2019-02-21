@@ -34,9 +34,13 @@ var FILES = {
   tpl: path.join(BACKSTOP_DIR, 'backstop.tpl.json')
 };
 var URL_VAR_REPLACERS = [
-  replaceRootUrlVar,
-  replaceCaseIdVar
+  replaceCaseIdVar,
+  replaceRootUrlVar
 ];
+
+var createUniqueCase = createUniqueRecordFactory('Case', 'subject');
+var createUniqueCaseType = createUniqueRecordFactory('CaseType', 'name');
+var createUniqueContact = createUniqueRecordFactory('Contact', 'display_name');
 
 /**
  * Returns the list of the scenarios from
@@ -67,6 +71,19 @@ function buildScenariosList (group) {
       });
     })
     .value();
+}
+
+/**
+ * Throws an error if it finds any inside one of the `cv api` responses.
+ *
+ * @param {Array} responses the list of responses as returned by `cv api:batch`.
+ */
+function checkAndThrowApiResponseErrors (responses) {
+  responses.forEach((response) => {
+    if (response.is_error) {
+      throw response.error_message;
+    }
+  });
 }
 
 /**
@@ -105,6 +122,76 @@ function createTempConfig () {
   });
 
   return JSON.stringify(content);
+}
+
+/**
+ * Returns a function that creates unique records for the given entity.
+ *
+ * @param {String} entityName the name of the entity that the records belongs to.
+ * @param {String} matchingField the field that will be used to check if the record
+ *   has already been created. Ex.: `name`, `subject`, `title`, etc.
+ * @return {Function}
+ */
+function createUniqueRecordFactory (entityName, matchingField) {
+  /**
+   * Checks if the record exists on the given entity before creating a new one.
+   *
+   * @param {Object} recordData the data used to create a new record on the Entity.
+   * @return {Object} the returned value from the API.
+   */
+  return function createUniqueRecord (recordData) {
+    var filter = { options: { limit: 1 } };
+    filter[matchingField] = recordData[matchingField];
+
+    var record = cvApi(entityName, 'get', filter);
+
+    if (record.count) {
+      return record;
+    }
+
+    return cvApi(entityName, 'create', recordData);
+  };
+}
+
+/**
+ * Executes a single call to the `cv api` service and returns the response
+ * in JSON format.
+ *
+ * @param {String} entityName the name of the entity to run the query on.
+ * @param {String} action the entity action.
+ * @param {Object} queryData the data to pass to the entity action.
+ * @return {Object} the result from the entity action call.
+ */
+function cvApi (entityName, action, queryData) {
+  var queryResponse = cvApiBatch([[entityName, action, queryData]]);
+
+  return queryResponse[0];
+}
+
+/**
+ * Executes multi calls to the `cv api` service and returns the response from
+ * those calls in JSON format.
+ *
+ * @param {Array} queriesData a list of queries to pass to the `cv api:batch` service.
+ */
+function cvApiBatch (queriesData) {
+  var config = siteConfig();
+  var cmd = `echo '${JSON.stringify(queriesData)}' | cv api:batch`;
+  var responses = JSON.parse(execSync(cmd, { cwd: config.root }));
+
+  checkAndThrowApiResponseErrors(responses);
+
+  return responses;
+}
+
+/**
+ * Defines a BackstopJS gulp task for the given action.
+ *
+ * @param {String} action the name of the Backstop action.
+ * @return {Object} gulp task.
+ */
+function defineBackstopJsAction (action) {
+  return gulp.task('backstopjs:' + action, () => runBackstopJS(action));
 }
 
 /**
@@ -201,6 +288,32 @@ function runBackstopJS (command) {
 }
 
 /**
+ * Setups the data needed for some of the backstop tests.
+ */
+function setupData () {
+  var caseType = createUniqueCaseType({
+    name: 'backstop_empty_case_type',
+    title: 'Backstop Empty Case Type',
+    definition: {
+      activityTypes: [],
+      activitySets: [],
+      caseRoles: [],
+      timelineActivityTypes: []
+    }
+  });
+  var contact = createUniqueContact({
+    contact_type: 'Individual',
+    display_name: 'Emil Backstop'
+  });
+
+  createUniqueCase({
+    case_type_id: caseType.id,
+    contact_id: contact.id,
+    subject: 'Backstop Empty Case'
+  });
+}
+
+/**
  * Returns the content of site config file
  *
  * @return {Object}
@@ -279,6 +392,7 @@ async function writeCookies () {
  *
  * @param {String} action
  */
-module.exports = (action) => {
-  gulp.task('backstopjs:' + action, () => runBackstopJS(action));
+module.exports = {
+  setupData: setupData,
+  defineAction: defineBackstopJsAction
 };
