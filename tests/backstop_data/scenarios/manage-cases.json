@@ -44,6 +44,15 @@
       "label": "Manage Cases - Case Overview - Edit Custom Data",
       "url": "{url}/civicrm/case/a/#/case/list?caseId={caseId}",
       "clickSelector": ".civicase__case-custom-fields__container .crm-editable-enabled"
+    },
+    {
+      "label": "Manage Cases - Case Overview - Add New menu",
+      "url": "{url}/civicrm/case/a/#/case/list?caseId={caseId}",
+      "clickSelectors": [
+        ".civicase__case-details__add-new-dropdown .btn-primary",
+        ".civicase__activity-dropdown",
+        ".civicase__activity-dropdown"
+      ]
     }
   ]
 }
