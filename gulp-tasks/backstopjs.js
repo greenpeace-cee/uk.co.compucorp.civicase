@@ -36,11 +36,13 @@ var FILES = {
   tpl: path.join(BACKSTOP_DIR, 'backstop.tpl.json')
 };
 var RECORD_IDENTIFIERS = {
+  activeContactDisplayName: 'Arnold Backstop',
   customGroupTitle: 'Backstop Case Custom Group',
   customFieldLabel: 'Backstop Case Custom Field',
   emptyCaseSubject: 'Backstop Empty Case',
   emptyCaseTypeName: 'backstop_empty_case_type',
-  emptyContactDisplayName: 'Emil Backstop'
+  emptyContactDisplayName: 'Emil Backstop',
+  fileUploadActivitySubject: 'Backstop File Upload'
 };
 var URL_VAR_REPLACERS = [
   replaceCaseIdVar,
@@ -48,11 +50,13 @@ var URL_VAR_REPLACERS = [
   replaceRootUrlVar
 ];
 
-var createUniqueCase = createUniqueRecordFactory('Case', 'subject');
-var createUniqueCaseType = createUniqueRecordFactory('CaseType', 'name');
-var createUniqueContact = createUniqueRecordFactory('Contact', 'display_name');
-var createUniqueCustomField = createUniqueRecordFactory('CustomField', 'label');
-var createUniqueCustomGroup = createUniqueRecordFactory('CustomGroup', 'title');
+var createUniqueActivity = createUniqueRecordFactory('Activity', [ 'subject' ]);
+var createUniqueAttachment = createUniqueRecordFactory('Attachment', [ 'entity_id', 'entity_table' ]);
+var createUniqueCase = createUniqueRecordFactory('Case', [ 'subject' ]);
+var createUniqueCaseType = createUniqueRecordFactory('CaseType', [ 'name' ]);
+var createUniqueContact = createUniqueRecordFactory('Contact', [ 'display_name' ]);
+var createUniqueCustomField = createUniqueRecordFactory('CustomField', [ 'label' ]);
+var createUniqueCustomGroup = createUniqueRecordFactory('CustomGroup', [ 'title' ]);
 
 /**
  * Returns the list of the scenarios from
@@ -140,11 +144,11 @@ function createTempConfig () {
  * Returns a function that creates unique records for the given entity.
  *
  * @param {String} entityName the name of the entity that the records belongs to.
- * @param {String} matchingField the field that will be used to check if the record
- *   has already been created. Ex.: `name`, `subject`, `title`, etc.
+ * @param {String[]} matchingFields the list of fields that will be used to check
+ * if the record has already been created. Ex.: `name`, `subject`, `title`, etc.
  * @return {Function}
  */
-function createUniqueRecordFactory (entityName, matchingField) {
+function createUniqueRecordFactory (entityName, matchingFields) {
   /**
    * Checks if the record exists on the given entity before creating a new one.
    *
@@ -153,7 +157,10 @@ function createUniqueRecordFactory (entityName, matchingField) {
    */
   return function createUniqueRecord (recordData) {
     var filter = { options: { limit: 1 } };
-    filter[matchingField] = recordData[matchingField];
+
+    matchingFields.forEach((matchingField) => {
+      filter[matchingField] = recordData[matchingField];
+    });
 
     var record = cvApi(entityName, 'get', filter);
 
@@ -207,6 +214,32 @@ function defineBackstopJsAction (action) {
 }
 
 /**
+ * Returns the ID of a case that is active and has an activity for the current
+ * calendar month.
+ *
+ * @return {Number}
+ */
+function getActiveCaseId () {
+  var startDate = moment().startOf('month').format('YYYY-MM-DD');
+  var endDate = moment().endOf('month').format('YYYY-MM-DD');
+
+  var activity = cvApi('Activity', 'get', {
+    'sequential': 1,
+    'activity_date_time': { BETWEEN: [ startDate, endDate ] },
+    'case_id.is_deleted': 0,
+    'case_id.status_id': 'Scheduled',
+    'return': [ 'case_id' ],
+    'options': { 'limit': 1 }
+  });
+
+  if (!activity.count) {
+    throw new Error('Please add an activity for the current month and for a case with a "Scheduled" status');
+  }
+
+  return activity.count && activity.values[0].case_id[0];
+}
+
+/**
  * Tries to get the record id from the cache first and if not found will retrieve
  * it using `cv api`, store the record id, and return it.
  *
@@ -231,25 +264,7 @@ function getRecordIdFromCacheOrCallback (cacheKey, callback) {
  */
 function replaceCaseIdVar (url, config) {
   return url.replace('{caseId}', function () {
-    return getRecordIdFromCacheOrCallback('caseId', () => {
-      var startDate = moment().startOf('month').format('YYYY-MM-DD');
-      var endDate = moment().endOf('month').format('YYYY-MM-DD');
-
-      var activity = cvApi('Activity', 'get', {
-        'sequential': 1,
-        'activity_date_time': { BETWEEN: [ startDate, endDate ] },
-        'case_id.is_deleted': 0,
-        'case_id.status_id': 'Scheduled',
-        'return': [ 'case_id' ],
-        'options': { 'limit': 1 }
-      });
-
-      if (!activity.count) {
-        throw new Error('Please add an activity for the current month and for a case with a "Scheduled" status');
-      }
-
-      return activity.count && activity.values[0].case_id[0];
-    });
+    return getRecordIdFromCacheOrCallback('caseId', getActiveCaseId);
   });
 }
 
@@ -346,6 +361,7 @@ function runBackstopJS (command) {
  * Setups the data needed for some of the backstop tests.
  */
 function setupData () {
+  var activeCaseId = getActiveCaseId();
   var caseType = createUniqueCaseType({
     name: RECORD_IDENTIFIERS.emptyCaseTypeName,
     title: 'Backstop Empty Case Type',
@@ -356,18 +372,35 @@ function setupData () {
       timelineActivityTypes: []
     }
   });
-  var contact = createUniqueContact({
+  var activeContact = createUniqueContact({
+    contact_type: 'Individual',
+    display_name: RECORD_IDENTIFIERS.activeContactDisplayName
+  });
+  var emptyContact = createUniqueContact({
     contact_type: 'Individual',
     display_name: RECORD_IDENTIFIERS.emptyContactDisplayName
+  });
+  var fileUploadActivity = createUniqueActivity({
+    activity_type_id: 'File Upload',
+    case_id: activeCaseId,
+    source_contact_id: activeContact.id,
+    subject: RECORD_IDENTIFIERS.fileUploadActivitySubject
   });
   var customGroup = createUniqueCustomGroup({
     title: RECORD_IDENTIFIERS.customGroupTitle,
     extends: 'Case'
   });
 
+  createUniqueAttachment({
+    content: '',
+    entity_id: fileUploadActivity.id,
+    entity_table: 'civicrm_activity',
+    name: 'backstop-file-upload.png',
+    mime_type: 'image/png'
+  });
   createUniqueCase({
     case_type_id: caseType.id,
-    contact_id: contact.id,
+    contact_id: emptyContact.id,
     subject: RECORD_IDENTIFIERS.emptyCaseSubject
   });
   createUniqueCustomField({

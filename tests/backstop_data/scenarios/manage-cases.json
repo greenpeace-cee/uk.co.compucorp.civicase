@@ -71,6 +71,20 @@
       "label": "Manage Cases - Case Overview - People tab - Other Relationships - Loading",
       "url": "{url}/civicrm/case/a/#/case/list?caseId={caseId}&tab=people",
       "onReadyScript": "manage-cases/people-tab-other-relationships-loading.js"
+    },
+    {
+      "label": "Manage Cases - Case Overview - Files tab - Loading",
+      "url": "{url}/civicrm/case/a/#/case/list?caseId={caseId}&tab=files",
+      "captureLoadingScreen": true
+    },
+    {
+      "label": "Manage Cases - Case Overview - Files tab",
+      "url": "{url}/civicrm/case/a/#/case/list?caseId={caseId}&tab=files"
+    },
+    {
+      "label": "Manage Cases - Case Overview - Files tab - Upload File",
+      "url": "{url}/civicrm/case/a/#/case/list?caseId={caseId}&tab=files",
+      "onReadyScript": "manage-cases/files-tab-upload-file.js"
     }
   ]
 }
