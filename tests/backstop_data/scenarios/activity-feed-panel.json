@@ -16,7 +16,7 @@
   {
     "label": "Activity Feed Panel - Load more clicked",
     "url": "{url}/civicrm/case/a/#/case?dtab=1",
-    "clickSelector": ".civicase__activity-feed-pager__more .btn"
+    "onReadyScript": "activity-feed-panel/load-more-clicked.js"
   },
   {
     "label": "Activity Feed Panel - Selected Filter",
