@@ -10,13 +10,8 @@
 
 use Civi\CCase\Utils as Utils;
 
+define('DEFAULT_CASE_TYPE_CATEGORY_LABEL', 'Cases');
 load_resources();
-
-// The following changes are only relevant to the full-page app.
-if (CRM_Utils_System::getUrlPath() == 'civicrm/case/a') {
-  adds_shoreditch_css();
-  update_breadcrumbs();
-}
 
 $options = [
   'activityTypes' => 'activity_type',
@@ -37,7 +32,14 @@ set_tags_to_js_vars($options);
 set_case_actions($options);
 set_contact_tasks($options);
 expose_settings($options);
+set_constants($options);
 retrieve_civicase_webform_url($options);
+
+// The following changes are only relevant to the full-page app.
+if (CRM_Utils_System::getUrlPath() == 'civicrm/case/a') {
+  adds_shoreditch_css();
+  update_breadcrumbs($options);
+}
 
 if (!function_exists('glob_recursive')) {
 
@@ -398,6 +400,13 @@ function set_contact_tasks(&$options) {
 function expose_settings(&$options) {
   $options['allowMultipleCaseClients'] = (bool) Civi::settings()->get('civicaseAllowMultipleClients');
   $options['allowCaseLocks'] = (bool) Civi::settings()->get('civicaseAllowCaseLocks');
+}
+
+/**
+ * Set Constants.
+ */
+function set_constants(&$options) {
+  $options['defaultCaseTypeCategoryLabel'] = DEFAULT_CASE_TYPE_CATEGORY_LABEL;
 }
 
 /**

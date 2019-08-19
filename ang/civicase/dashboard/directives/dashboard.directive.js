@@ -1,4 +1,4 @@
-(function (angular, $) {
+(function (angular, $, _) {
   var module = angular.module('civicase');
 
   module.directive('civicaseDashboard', function () {
@@ -24,6 +24,7 @@
       bindRouteParamsToScope();
       initWatchers();
       prepareCaseFilterOption();
+      $scope.caseTypeCategoryLabel = getCaseTypeCategoryLabel();
     }());
 
     $scope.caseListLink = function (type, status) {
@@ -47,6 +48,19 @@
       $scope.$bindToRoute({ param: 'dtab', expr: 'activeTab', format: 'int', default: 0 });
       $scope.$bindToRoute({ param: 'drel', expr: 'filters.caseRelationshipType', format: 'raw', default: 'is_involved' });
       $scope.$bindToRoute({ param: 'case_type_category', expr: 'activityFilters.case_filter["case_type_id.case_type_category"]', format: 'raw', default: null });
+    }
+
+    /**
+     * Gets the case type category label.
+     */
+    function getCaseTypeCategoryLabel () {
+      var caseTypeCategoryName = $scope.activityFilters.case_filter['case_type_id.case_type_category'] || CRM.civicase.defaultCaseTypeCategoryLabel;
+
+      var caseTypeCategory = _.find(CRM.civicase.caseTypeCategories, function (caseTypeCategory) {
+        return caseTypeCategory.name.toLowerCase() === caseTypeCategoryName.toLowerCase();
+      });
+
+      return caseTypeCategory ? caseTypeCategory.label : CRM.civicase.defaultCaseTypeCategoryLabel;
     }
 
     /**
@@ -87,4 +101,4 @@
       $scope.caseRelationshipOptions = options;
     }
   }
-})(angular, CRM.$);
+})(angular, CRM.$, CRM._);
