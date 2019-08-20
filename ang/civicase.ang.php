@@ -10,12 +10,20 @@
 
 use Civi\CCase\Utils as Utils;
 
+define('DEFAULT_CASE_TYPE_CATEGORY_NAME', 'Cases');
+
 load_resources();
 
 // The following changes are only relevant to the full-page app.
 if (CRM_Utils_System::getUrlPath() == 'civicrm/case/a') {
+  $caseTypeCategoryName = CRM_Utils_Request::retrieve('case_type_category', 'String')
+    ?? DEFAULT_CASE_TYPE_CATEGORY_NAME;
+  $caseTypeCategory = get_case_type_category_by_name($caseTypeCategoryName);
+
   adds_shoreditch_css();
-  update_breadcrumbs();
+  update_breadcrumbs([
+    'dashboardBreadcrumb' => "{$caseTypeCategory['label']} Dashboard",
+  ]);
 }
 
 $options = [
@@ -90,8 +98,13 @@ function adds_shoreditch_css() {
 /**
  * Update Breadcrumbs.
  */
-function update_breadcrumbs() {
+function update_breadcrumbs($overridingOptions = []) {
   CRM_Utils_System::resetBreadCrumb();
+
+  $options = array_merge([
+    'dashboardBreadcrumb' => ts('Cases Dashboard'),
+  ], $overridingOptions);
+
   $breadcrumb = [
     [
       'title' => ts('Home'),
@@ -102,11 +115,25 @@ function update_breadcrumbs() {
       'url' => CRM_Utils_System::url('civicrm', 'reset=1'),
     ],
     [
-      'title' => ts('Case Dashboard'),
+      'title' => $options['dashboardBreadcrumb'],
       'url' => CRM_Utils_System::url('civicrm/case/a/#/case'),
     ],
   ];
+
   CRM_Utils_System::appendBreadCrumb($breadcrumb);
+}
+
+/**
+ * Returns the case type category information for the given category name.
+ *
+ * @param String $caseTypeCategoryName
+ * @return Array
+ */
+function get_case_type_category_by_name($caseTypeCategoryName) {
+  return civicrm_api3('OptionValue', 'getsingle', [
+    'option_group_id' => 'case_type_categories',
+    'name' => $caseTypeCategoryName,
+  ]);
 }
 
 /**
