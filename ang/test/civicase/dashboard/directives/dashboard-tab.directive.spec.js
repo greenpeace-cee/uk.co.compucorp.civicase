@@ -1,8 +1,8 @@
 /* eslint-env jasmine */
 (function ($, _, moment) {
   describe('dashboardTabController', function () {
-    var $controller, $rootScope, $scope, crmApi, formatActivity, formatCase,
-      mockedCases;
+    var $controller, $rootScope, $scope, caseTypeCategoriesMockData, crmApi,
+      formatActivity, formatCase, mockedCases;
 
     function generateMockedCases () {
       mockedCases = _.times(5, function () {
@@ -10,11 +10,12 @@
       });
     }
 
-    beforeEach(module('civicase.templates', 'civicase', 'crmUtil'));
-    beforeEach(inject(function (_$controller_, _$rootScope_, _crmApi_,
-      _formatActivity_, _formatCase_) {
+    beforeEach(module('civicase.data', 'civicase.templates', 'civicase', 'crmUtil'));
+    beforeEach(inject(function (_$controller_, _$rootScope_, _caseTypeCategoriesMockData_,
+      _crmApi_, _formatActivity_, _formatCase_) {
       $controller = _$controller_;
       $rootScope = _$rootScope_;
+      caseTypeCategoriesMockData = _caseTypeCategoriesMockData_;
       crmApi = _crmApi_;
       formatActivity = _formatActivity_;
       formatCase = _formatCase_;
@@ -213,8 +214,50 @@
           expect($scope.newCasesPanel.custom).toBeDefined();
         });
 
-        it('sets the custom name of the items to "cases"', function () {
-          expect($scope.newCasesPanel.custom.itemName).toBe('cases');
+        describe('Item Name', function () {
+          var caseCategory, prospectsCategory;
+
+          beforeEach(function () {
+            caseCategory = caseTypeCategoriesMockData[1];
+            prospectsCategory = caseTypeCategoriesMockData[2];
+            $scope.activityFilters = {
+              case_filter: {}
+            };
+          });
+
+          describe('When the Case Type Category is not defined', function () {
+            beforeEach(function () {
+              initController();
+            });
+
+            it('sets the new cases panel item name equal to the label of the cases category', function () {
+              expect($scope.newCasesPanel.custom.itemName).toBe(caseCategory.label);
+            });
+          });
+
+          describe('When the Case Type Category is Case', function () {
+            beforeEach(function () {
+              $scope.activityFilters.case_filter['case_type_id.case_type_category'] = caseCategory.name;
+
+              initController();
+            });
+
+            it('sets the new cases panel item name equal to the label of the cases category', function () {
+              expect($scope.newCasesPanel.custom.itemName).toBe(caseCategory.label);
+            });
+          });
+
+          describe('When the Case Type Category is Prospects', function () {
+            beforeEach(function () {
+              $scope.activityFilters.case_filter['case_type_id.case_type_category'] = prospectsCategory.name;
+
+              initController();
+            });
+
+            it('sets the new cases panel item name equal to the label of the prospects category', function () {
+              expect($scope.newCasesPanel.custom.itemName).toBe(prospectsCategory.label);
+            });
+          });
         });
 
         describe('custom click handler', function () {

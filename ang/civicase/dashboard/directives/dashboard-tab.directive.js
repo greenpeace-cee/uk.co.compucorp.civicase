@@ -1,4 +1,4 @@
-(function (angular, $, _, statusTypes) {
+(function (angular, $, _, statusTypes, ts) {
   var module = angular.module('civicase');
 
   module.directive('civicaseDashboardTab', function () {
@@ -13,6 +13,7 @@
 
   function dashboardTabController ($location, $rootScope, $route, $sce, $scope,
     ContactsCache, crmApi, formatCase, formatActivity) {
+    var DEFAULT_CASE_TYPE_CATEGORY_LABEL = ts('Cases');
     var ACTIVITIES_QUERY_PARAMS_DEFAULTS = {
       'contact_id': 'user_contact_id',
       'is_current_revision': 1,
@@ -96,7 +97,7 @@
     };
     $scope.newCasesPanel = {
       custom: {
-        itemName: 'cases',
+        itemName: getCaseTypeCategoryLabel(),
         caseClick: casesCustomClick,
         viewCasesLink: viewCasesLink()
       },
@@ -174,6 +175,27 @@
      */
     function casesCustomClick (caseObj) {
       $location.path('case/list').search('caseId', caseObj.id);
+    }
+
+    /**
+     * Returns the case type category label. The case type category comes from
+     * the URL param and is stored in the `activityFilters.case_filter` object.
+     * The label is used to change the panel query name for cases.
+     *
+     * @return {String}
+     */
+    function getCaseTypeCategoryLabel () {
+      var caseFilters = $scope.activityFilters.case_filter;
+      var caseTypeCategoryName = caseFilters['case_type_id.case_type_category'] ||
+        DEFAULT_CASE_TYPE_CATEGORY_LABEL;
+
+      var caseTypeCategory = _.find(CRM.civicase.caseTypeCategories, function (caseTypeCategory) {
+        return caseTypeCategory.name.toLowerCase() === caseTypeCategoryName.toLowerCase();
+      });
+
+      return caseTypeCategory
+        ? caseTypeCategory.label
+        : DEFAULT_CASE_TYPE_CATEGORY_LABEL;
     }
 
     /**
@@ -374,4 +396,4 @@
       return params;
     }
   }
-})(angular, CRM.$, CRM._, CRM.civicase.activityStatusTypes);
+})(angular, CRM.$, CRM._, CRM.civicase.activityStatusTypes, CRM.ts('civicase'));
