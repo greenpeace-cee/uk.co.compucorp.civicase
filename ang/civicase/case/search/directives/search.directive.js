@@ -19,9 +19,8 @@
    * Controller Function for civicase-search directive
    */
   module.controller('civicaseSearchController', function ($scope, $rootScope, $timeout,
-    crmApi, getSelect2Value) {
+    crmApi, getSelect2Value, ts) {
     // The ts() functions help load strings for this module.
-    var ts = $scope.ts = CRM.ts('civicase');
     var caseTypes = CRM.civicase.caseTypes;
     var caseStatuses = CRM.civicase.caseStatuses;
     var caseTypeCategories = CRM.civicase.caseTypeCategories;
@@ -35,9 +34,9 @@
       tag_id: { label: ts('Tags') }
     };
     var caseRelationshipConfig = [
-      { 'text': 'All Cases', 'id': 'all' },
-      { 'text': 'My cases', 'id': 'is_case_manager' },
-      { 'text': 'Cases I am involved', 'id': 'is_involved' }
+      { 'text': ts('All Cases'), 'id': 'all' },
+      { 'text': ts('My cases'), 'id': 'is_case_manager' },
+      { 'text': ts('Cases I am involved'), 'id': 'is_involved' }
     ];
 
     $scope.pageTitle = '';
@@ -47,9 +46,10 @@
     $scope.checkPerm = CRM.checkPerm;
     $scope.filterDescription = buildDescription();
     $scope.filters = angular.extend({}, $scope.defaults);
+    $scope.ts = ts;
     $scope.contactRoles = [
-      { id: 'all-case-roles', text: 'All Case Roles' },
-      { id: 'client', text: 'Client' }
+      { id: 'all-case-roles', text: ts('All Case Roles') },
+      { id: 'client', text: ts('Client') }
     ];
     $scope.contactRoleFilter = {
       selectedContacts: null,

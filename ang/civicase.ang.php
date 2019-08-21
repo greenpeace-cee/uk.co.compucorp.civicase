@@ -12,6 +12,7 @@ use Civi\CCase\Utils as Utils;
 
 define('DEFAULT_CASE_TYPE_CATEGORY_NAME', 'Cases');
 
+load_custom_word_replacements();
 load_resources();
 
 // The following changes are only relevant to the full-page app.
@@ -85,6 +86,26 @@ function load_resources() {
     ]);
 }
 
+function load_custom_word_replacements() {
+  $locale = CRM_Core_I18n::getLocale();
+
+  $wordReplacements = [
+    'Case' => 'Chore',
+    'Cases' => 'Chores',
+    'case' => 'chore',
+    'cases' => 'chores',
+  ];
+
+  Civi::$statics[CRM_Core_I18n::class][$locale] = array_replace_recursive(
+    Civi::$statics[CRM_Core_I18n::class][$locale],
+    [
+      'enabled' => [
+        'wildcardMatch' => $wordReplacements,
+      ]
+    ]
+  );
+}
+
 /**
  * Add shoreditch custom css if not already present.
  */
@@ -101,10 +122,6 @@ function adds_shoreditch_css() {
 function update_breadcrumbs($overridingOptions = []) {
   CRM_Utils_System::resetBreadCrumb();
 
-  $options = array_merge([
-    'dashboardBreadcrumb' => ts('Cases Dashboard'),
-  ], $overridingOptions);
-
   $breadcrumb = [
     [
       'title' => ts('Home'),
@@ -115,7 +132,7 @@ function update_breadcrumbs($overridingOptions = []) {
       'url' => CRM_Utils_System::url('civicrm', 'reset=1'),
     ],
     [
-      'title' => $options['dashboardBreadcrumb'],
+      'title' => ts('Cases Dashboard'),
       'url' => CRM_Utils_System::url('civicrm/case/a/#/case'),
     ],
   ];
