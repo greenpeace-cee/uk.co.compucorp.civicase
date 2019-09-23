@@ -81,12 +81,16 @@
      * Opens the popup for Creating Email
      */
     $scope.createEmail = function () {
+      var caseClients = [];
+      angular.forEach($scope.item.contacts, function (contact, key) {
+        caseClients.push(contact.contact_id);
+      });
       var createEmailURLParams = {
         action: 'add',
         caseid: $scope.item.id,
         atype: '3',
         reset: 1,
-        context: 'standalone'
+        cid: caseClients.join(',')
       };
 
       CRM
