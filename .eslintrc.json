@@ -4,6 +4,7 @@
     "CRM": "writable",
     "angular": "readonly",
     "inject": "readonly",
-    "moment": "readonly"
+    "moment": "readonly",
+    "ts": "readonly"
   }
 }

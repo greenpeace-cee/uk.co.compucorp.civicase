@@ -39,7 +39,7 @@
    * @param {object} CaseType case type service
    */
   function civicaseCaseDetailsController ($location, $rootScope, $scope,
-    $document, BulkActions, crmApi, formatActivity, formatCase,
+    $document, $injector, BulkActions, CaseTabs, crmApi, formatActivity, formatCase,
     getActivityFeedUrl, getCaseQueryParams, $route, $timeout,
     CasesUtils, PrintMergeCaseAction, ts, ActivityType, CaseStatus, CaseType) {
     // The ts() and hs() functions help load strings for this module.
@@ -56,14 +56,10 @@
     $scope.bulkAllowed = BulkActions.isAllowed();
     $scope.caseTypesLength = _.size(caseTypes);
     $scope.CRM = CRM;
-    $scope.tabs = [
-      { name: 'summary', label: ts('Summary') },
-      { name: 'activities', label: ts('Activities') },
-      { name: 'people', label: ts('People') },
-      { name: 'files', label: ts('Files') }
-    ];
+    $scope.tabs = CaseTabs;
 
     (function init () {
+      $scope.$watch('activeTab', activeTabWatcher);
       $scope.$watch('isFocused', isFocusedWatcher);
       $scope.$watch('item', itemWatcher);
       $scope.$on('civicase::activity-feed::show-activity-panel',
@@ -386,6 +382,34 @@
         });
       }
       return ret;
+    }
+
+    /**
+     * Injects the caseTab service as a string pattern
+     * from the name.
+     *
+     * @param {string} name
+     */
+    function getCaseTabService (name) {
+      try {
+        return $injector.get(name + 'CaseTab');
+      } catch (e) {
+        return null;
+      }
+    }
+
+    /**
+     * Watches for activeTab variable and update the active tab
+     * placeholder and content template.
+     */
+    function activeTabWatcher () {
+      var tab = $scope.activeTab;
+      var service = getCaseTabService(tab);
+
+      if (service) {
+        $scope.activeTabPlaceholderUrl = service.getPlaceholderUrl();
+        $scope.activeTabContentUrl = service.activeTabContentUrl();
+      }
     }
 
     /**
