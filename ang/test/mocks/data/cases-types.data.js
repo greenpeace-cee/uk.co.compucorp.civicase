@@ -333,7 +333,7 @@
       /**
        * Returns a list of case types
        *
-       * @returns {Array} case types
+       * @returns {object} a list of case types indexed by id.
        */
       get: function () {
         return _.clone(caseTypesMock);

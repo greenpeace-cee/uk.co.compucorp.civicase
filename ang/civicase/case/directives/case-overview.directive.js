@@ -16,9 +16,15 @@
     /**
      * Link function for civicaseCaseOverview
      *
+<<<<<<< HEAD
      * @param {object} $scope scope object
      * @param {object} element the directive element
      * @param {object} attrs attributes of the directive
+=======
+     * @param {object} $scope the directive's $scope object.
+     * @param {object} element the directive's element reference.
+     * @param {object} attrs the directive's element attributes.
+>>>>>>> RSE-364: Fix lint issues
      */
     function civicaseCaseOverviewLink ($scope, element, attrs) {
       (function init () {
@@ -37,14 +43,14 @@
   module.controller('civicaseCaseOverviewController', civicaseCaseOverviewController);
 
   /**
-   * Controller for civicaseCaseOverview
+   * Controller for civicaseCaseOverview.
    *
-   * @param {object} $scope scope object
-   * @param {object} crmApi crm api service
-   * @param {object} BrowserCache browser cache service
-   * @param {object} CaseStatus case status service
-   * @param {object} CaseTypeCategory case type category service
-   * @param {object} CaseType case type
+   * @param {object} $scope the controller's $scope object.
+   * @param {object} crmApi the crm api service reference.
+   * @param {object} BrowserCache the browser cache service reference.
+   * @param {object} CaseStatus the case status service reference.
+   * @param {object} CaseTypeCategory the case type category service reference.
+   * @param {object} CaseType the case type service reference.
    */
   function civicaseCaseOverviewController ($scope, crmApi, BrowserCache, CaseStatus, CaseTypeCategory, CaseType) {
     var BROWSER_CACHE_IDENTIFIER = 'civicase.CaseOverview.hiddenCaseStatuses';
@@ -71,7 +77,7 @@
     /**
      * Checks if all statuses are hidden
      *
-     * @returns {boolean} if all statuses are hidden
+     * @returns {boolean} true when all statuses are hidden.
      */
     $scope.areAllStatusesHidden = function () {
       return _.filter($scope.caseStatuses, function (status) {
@@ -82,8 +88,8 @@
     /**
      * Creates link to the filtered cases list
      *
-     * @param {string} type case type
-     * @param {string} status case status
+     * @param {string} type the case type
+     * @param {string} status the case's status.
      * @returns {string} link to the filtered list of cases
      */
     $scope.caseListLink = function (type, status) {
@@ -107,7 +113,7 @@
     /**
      * Toggle status view
      *
-     * @param {object} $event event object
+     * @param {document#event:mousedown} $event the toggle DOM event.
      * @param {number} index of the case status
      */
     $scope.toggleStatusVisibility = function ($event, index) {
@@ -168,10 +174,10 @@
     }
 
     /**
-     * Returns case types filtered by given category
+     * Returns case types filtered by given category.
      *
-     * @param {string} categoryName category name
-     * @returns {Array} case types filetered by the given category
+     * @param {string} categoryName the case type category name.
+     * @returns {object[]} the filtered list of case types.
      */
     function getCaseTypesFilteredByCategory (categoryName) {
       var caseTypeCategory = _.find(caseTypeCategories, function (category) {
