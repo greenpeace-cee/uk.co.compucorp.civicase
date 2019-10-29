@@ -7,7 +7,7 @@ module.exports = function (config) {
 
   config.set({
     basePath: civicrmPath,
-    frameworks: ['jasmine'],
+    frameworks: ['jasmine', 'jasmine-diff'],
     files: [
       // the global dependencies
       'bower_components/jquery/dist/jquery.min.js',
