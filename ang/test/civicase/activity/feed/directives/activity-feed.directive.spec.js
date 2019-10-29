@@ -3,18 +3,18 @@
 (function (_) {
   describe('civicaseActivityFeed', function () {
     describe('Activity Feed Controller', function () {
-      var $provide, $controller, $rootScope, $scope, $q, crmApi, CaseTypes, activitiesMockData, ActivityType;
+      var $provide, $controller, $rootScope, $scope, $q, crmApi, CaseTypesMockData, activitiesMockData, ActivityType;
       var activitiesInCurrentPage, totalNumberOfActivities;
 
       beforeEach(module('civicase', 'civicase.data', function (_$provide_) {
         $provide = _$provide_;
       }));
 
-      beforeEach(inject(function (_$controller_, _$rootScope_, _$q_, _CaseTypes_, _crmApi_, _activitiesMockData_, _ActivityType_) {
+      beforeEach(inject(function (_$controller_, _$rootScope_, _$q_, _CaseTypesMockData_, _crmApi_, _activitiesMockData_, _ActivityType_) {
         $controller = _$controller_;
         $rootScope = _$rootScope_;
         $q = _$q_;
-        CaseTypes = _CaseTypes_;
+        CaseTypesMockData = _CaseTypesMockData_;
         ActivityType = _ActivityType_;
         activitiesMockData = _activitiesMockData_;
 
@@ -31,7 +31,7 @@
           mockActivitiesAPICall();
           initController();
 
-          $scope.filters.activitySet = CaseTypes.get()['1'].definition.activitySets[0].name;
+          $scope.filters.activitySet = CaseTypesMockData.get()['1'].definition.activitySets[0].name;
           $scope.filters.activity_type_id = '5';
         });
 
@@ -42,7 +42,7 @@
             expectedActivityTypeIDs = [];
             $scope.$digest();
 
-            _.each(CaseTypes.get()['1'].definition.activitySets[0].activityTypes, function (activityTypeFromSet) {
+            _.each(CaseTypesMockData.get()['1'].definition.activitySets[0].activityTypes, function (activityTypeFromSet) {
               expectedActivityTypeIDs.push(_.findKey(ActivityType.getAll(), function (activitySet) {
                 return activitySet.name === activityTypeFromSet.name;
               }));

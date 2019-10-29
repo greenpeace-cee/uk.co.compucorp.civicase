@@ -328,7 +328,7 @@
 
   CRM['civicase-base'].caseTypes = _.clone(caseTypesMock);
 
-  module.service('CaseTypes', function () {
+  module.service('CaseTypesMockData', function () {
     return {
       /**
        * Returns a list of case types
