@@ -60,7 +60,7 @@
      * @returns {object[]} A list of case types.
      */
     function getCaseTypesWithEmptyButtonsArray () {
-      return _.map(CRM.civicase.caseTypes, function (caseType) {
+      return _.map(CRM['civicase-base'].caseTypes, function (caseType) {
         return _.assign({}, caseType, {
           buttons: []
         });

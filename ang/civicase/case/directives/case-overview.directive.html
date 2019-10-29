@@ -76,6 +76,11 @@
           <a ng-href="{{ caseListLink(caseType.name) }}">
             {{ caseType.title }}
           </a>
+          <a class="btn btn-link"
+            ng-href="{{button.url}}"
+            ng-repeat="button in caseType.buttons">
+            <i class="fa fa-cog"></i>
+          </a>
         </div>
         <div
           class="civicase__case-overview__breakdown-field"

@@ -2,14 +2,14 @@
 (function ($, _) {
   describe('CaseOverview', function () {
     var $compile, $provide, $q, $rootScope, $scope, BrowserCache,
-      CasesOverviewStats, crmApi, element, targetElementScope, CaseTypesMockData,
+      CasesOverviewStats, crmApi, element, targetElementScope, CaseTypes,
       caseTypeCategoriesMockData, CaseStatus, CaseType;
 
-    beforeEach(module('civicase', 'civicase.data', 'civicase.templates', function (_$provide_) {
+    beforeEach(module('civicase.data', 'civicase', 'civicase.templates', function (_$provide_) {
       $provide = _$provide_;
     }));
 
-    beforeEach(inject(function (_$compile_, _$q_, _$rootScope_, BrowserCacheMock, _crmApi_, _CasesOverviewStatsData_, _CaseTypesMockData_, _caseTypeCategoriesMockData_, _CaseStatus_, _CaseType_) {
+    beforeEach(inject(function (_$compile_, _$q_, _$rootScope_, BrowserCacheMock, _crmApi_, _CasesOverviewStatsData_, _caseTypeCategoriesMockData_, _CaseTypes_, _CaseStatus_, _CaseType_) {
       $compile = _$compile_;
       $q = _$q_;
       $rootScope = _$rootScope_;
@@ -17,7 +17,6 @@
       crmApi = _crmApi_;
       CasesOverviewStats = _CasesOverviewStatsData_.get();
       BrowserCache = BrowserCacheMock;
-      CaseTypesMockData = _CaseTypesMockData_;
       CaseType = _CaseType_;
       CaseStatus = _CaseStatus_;
       caseTypeCategoriesMockData = _caseTypeCategoriesMockData_;
@@ -53,7 +52,7 @@
     describe('Case Types', function () {
       describe('when case type category filter is not present', function () {
         it('does not filter case types using case type category', function () {
-          expect(element.isolateScope().caseTypes).toEqual(CaseTypesMockData.get());
+          expect(element.isolateScope().caseTypes).toEqual(CaseType.getAll());
         });
       });
 
@@ -68,7 +67,7 @@
           var caseTypeCategoryID = _.find(caseTypeCategoriesMockData, function (category) {
             return category.label.toLowerCase() === caseTypeCategory.toLowerCase();
           }).value;
-          expectedResult = _.pick(CaseTypesMockData.get(), function (caseType) {
+          expectedResult = _.pick(CaseType.getAll(), function (caseType) {
             return caseType.case_type_category === caseTypeCategoryID;
           });
         });
