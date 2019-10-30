@@ -1,13 +1,13 @@
 (function (angular, $, _) {
   var module = angular.module('civicase');
 
-  module.service('activityCaseTab', ActivityCaseTab);
+  module.service('activitiesCaseTab', ActivitiesCaseTab);
 
   /**
    * @param $location
    * @param crmApi
    */
-  function ActivityCaseTab ($location, crmApi) {
+  function ActivitiesCaseTab ($location, crmApi) {
     /**
      * Returns placeholder HTMl template url.
      */
