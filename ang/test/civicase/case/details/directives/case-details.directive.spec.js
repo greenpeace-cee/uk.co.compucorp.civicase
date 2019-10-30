@@ -10,6 +10,7 @@
 
       killDirective('civicaseActivitiesCalendar');
       killDirective('civicaseCaseActions');
+      killDirective('civicaseCaseDetailsPeopleTab');
     }));
 
     beforeEach(inject(function ($q) {
@@ -52,6 +53,22 @@
 
       it('complies the directive', function () {
         expect(element.html()).toContain('civicase__case-header');
+      });
+    });
+
+    describe('activeTab watcher', function () {
+      beforeEach(function () {
+        compileDirective();
+        element.isolateScope().activeTab = 'people';
+        element.isolateScope().$digest();
+      });
+
+      it('should return active tab placeholder url', function () {
+        expect(element.isolateScope().activeTabPlaceholderUrl).toEqual('~/civicase/case/details/directives/placeholder/people.html');
+      });
+
+      it('should return active tab content url', function () {
+        expect(element.isolateScope().activeTabContentUrl).toEqual('~/civicase/case/details/directives/tab-content/people.html');
       });
     });
 
