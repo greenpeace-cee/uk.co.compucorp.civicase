@@ -57,6 +57,7 @@
     var caseTypes = CaseType.getAll();
     var caseTypeCategories = CaseTypeCategory.getAll();
 
+    $scope.getButtonsForCaseType = CaseType.getButtonsForCaseType;
     $scope.summaryData = [];
     $scope.caseStatuses = _.chain(CaseStatus.getAll())
       .sortBy(function (status) { return status.weight; })

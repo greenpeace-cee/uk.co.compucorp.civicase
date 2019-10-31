@@ -2,14 +2,14 @@
 (function ($, _) {
   describe('CaseOverview', function () {
     var $compile, $provide, $q, $rootScope, $scope, BrowserCache,
-      CasesOverviewStats, crmApi, element, targetElementScope, CaseTypes,
+      CasesOverviewStats, crmApi, element, targetElementScope,
       caseTypeCategoriesMockData, CaseStatus, CaseType;
 
     beforeEach(module('civicase.data', 'civicase', 'civicase.templates', function (_$provide_) {
       $provide = _$provide_;
     }));
 
-    beforeEach(inject(function (_$compile_, _$q_, _$rootScope_, BrowserCacheMock, _crmApi_, _CasesOverviewStatsData_, _caseTypeCategoriesMockData_, _CaseTypes_, _CaseStatus_, _CaseType_) {
+    beforeEach(inject(function (_$compile_, _$q_, _$rootScope_, BrowserCacheMock, _crmApi_, _CasesOverviewStatsData_, _caseTypeCategoriesMockData_, _CaseStatus_, _CaseType_) {
       $compile = _$compile_;
       $q = _$q_;
       $rootScope = _$rootScope_;

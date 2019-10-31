@@ -6,9 +6,9 @@
 
     beforeEach(module('civicase', 'civicase.data'));
 
-    beforeEach(inject((_CaseType_, _CaseTypes_) => {
+    beforeEach(inject((_CaseType_, _CaseTypesMockData_) => {
       CaseType = _CaseType_;
-      CaseTypesData = _CaseTypes_.get();
+      CaseTypesData = _CaseTypesMockData_.get();
     }));
 
     describe('when getting all case types', () => {

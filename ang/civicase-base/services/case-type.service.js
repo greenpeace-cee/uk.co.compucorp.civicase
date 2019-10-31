@@ -5,11 +5,14 @@
 
   /**
    * CaseType Service
+   *
+   * @param CaseTypeButtons
    */
-  function CaseType () {
+  function CaseType (CaseTypeButtons) {
     var caseTypes = CRM['civicase-base'].caseTypes;
 
     this.getAll = getAll;
+    this.getButtonsForCaseType = getButtonsForCaseType;
     this.getTitlesForNames = getTitlesForNames;
 
     /**
@@ -18,6 +21,16 @@
     function getAll () {
       return caseTypes;
     }
+
+    /**
+     * Returns the buttons for the given case type.
+     *
+     * @param {string} caseTypeName the name of the case type to get the buttons for.
+     * @returns {object[]} a list of buttons.
+     */
+    function getButtonsForCaseType (caseTypeName) {
+      return CaseTypeButtons[caseTypeName] || [];
+    };
 
     /**
      * Returns a list of case type titles for the given names.

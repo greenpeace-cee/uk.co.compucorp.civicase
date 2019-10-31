@@ -78,7 +78,7 @@
           </a>
           <a class="btn btn-link"
             ng-href="{{button.url}}"
-            ng-repeat="button in caseType.buttons">
+            ng-repeat="button in getButtonsForCaseType(caseType.name)">
             <i class="fa fa-cog"></i>
           </a>
         </div>
