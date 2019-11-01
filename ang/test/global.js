@@ -11,7 +11,7 @@
   CRM.angular.requires.civicase = ['civicase-base', 'crmAttachment', 'crmUi', 'crmUtil', 'ngRoute', 'angularFileUpload', 'bw.paging', 'crmRouteBinder', 'crmResource', 'ui.bootstrap', 'uibTabsetClass', 'dialogService'];
 
   CRM.loadForm = jasmine.createSpy('loadForm');
-  CRM.url = jasmine.createSpy('url');
+  CRM.url = jasmine.createSpy('url').and.callFake((url) => url);
 
   // Common utility functions for tests
   CRM.testUtils = {
