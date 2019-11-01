@@ -47,13 +47,13 @@ function get_base_js_files() {
 function set_case_types_to_js_vars(&$options) {
   $caseTypes = civicrm_api3('CaseType', 'get', [
     'return' => [
-      'name', 'title', 'description', 'definition', 'case_type_category',
+      'id', 'name', 'title', 'description', 'definition', 'case_type_category',
     ],
     'options' => ['limit' => 0, 'sort' => 'weight'],
     'is_active' => 1,
   ]);
   foreach ($caseTypes['values'] as &$item) {
-    CRM_Utils_Array::remove($item, 'id', 'is_forkable', 'is_forked');
+    CRM_Utils_Array::remove($item, 'is_forkable', 'is_forked');
   }
   $options['caseTypes'] = $caseTypes['values'];
 }
