@@ -328,16 +328,28 @@
 
   CRM['civicase-base'].caseTypes = _.clone(caseTypesMock);
 
-  module.service('CaseTypesMockData', function () {
-    return {
-      /**
-       * Returns a list of case types
-       *
-       * @returns {object} a list of case types indexed by id.
-       */
-      get: function () {
-        return _.clone(caseTypesMock);
-      }
+  module.provider('CaseTypesMockData', function () {
+    /**
+     * Merges the given case types to the global case types list.
+     *
+     * @param {object} newCaseTypes a map of case types indexed by their id.
+     */
+    this.add = function (newCaseTypes) {
+      caseTypesMock = _.assign({}, caseTypesMock, newCaseTypes);
+      CRM['civicase-base'].caseTypes = _.clone(caseTypesMock);
+    };
+
+    this.$get = () => {
+      return {
+        /**
+         * Returns a list of case types
+         *
+         * @returns {object} a list of case types indexed by id.
+         */
+        get: function () {
+          return _.clone(caseTypesMock);
+        }
+      };
     };
   });
 }(CRM._));
