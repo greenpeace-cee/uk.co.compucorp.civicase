@@ -1,42 +1,42 @@
 /* eslint-env jasmine */
 
 (function (_, angular) {
-  describe('Case type buttons provider', () => {
-    let CaseTypeButtons, CaseTypeButtonsProvider;
+  describe('DashboardCaseTypeButtons', () => {
+    let DashboardCaseTypeButtons, DashboardCaseTypeButtonsProvider;
 
     beforeEach(() => {
       initSpyModule('civicase.spy', ['civicase']);
       module('civicase', 'civicase.data', 'civicase.spy');
     });
 
-    beforeEach(inject((_CaseTypeButtons_) => {
-      CaseTypeButtons = _CaseTypeButtons_;
+    beforeEach(inject((_DashboardCaseTypeButtons_) => {
+      DashboardCaseTypeButtons = _DashboardCaseTypeButtons_;
     }));
 
     describe('when no buttons have been defined', () => {
       it('returns an empty object', () => {
-        expect(CaseTypeButtons).toEqual({});
+        expect(DashboardCaseTypeButtons).toEqual({});
       });
     });
 
     describe('when adding buttons to case types', () => {
       beforeEach(() => {
-        CaseTypeButtonsProvider.addButtons('housing_support', [{
+        DashboardCaseTypeButtonsProvider.addButtons('housing_support', [{
           url: 'http://housing_support.co.uk/'
         }]);
-        CaseTypeButtonsProvider.addButtons('adult_day_care_referral', [{
+        DashboardCaseTypeButtonsProvider.addButtons('adult_day_care_referral', [{
           url: 'http://adult_day_care_referral.co.uk/'
         }]);
       });
 
       it('adds the corresponding button to housing support', () => {
-        expect(CaseTypeButtons.housing_support).toEqual([{
+        expect(DashboardCaseTypeButtons.housing_support).toEqual([{
           url: 'http://housing_support.co.uk/'
         }]);
       });
 
       it('adds the corresponding button to adult day care referral', () => {
-        expect(CaseTypeButtons.adult_day_care_referral).toEqual([{
+        expect(DashboardCaseTypeButtons.adult_day_care_referral).toEqual([{
           url: 'http://adult_day_care_referral.co.uk/'
         }]);
       });
@@ -50,8 +50,8 @@
      */
     function initSpyModule (spyModuleName, spyModuleRequirements) {
       angular.module(spyModuleName, spyModuleRequirements)
-        .config((_CaseTypeButtonsProvider_) => {
-          CaseTypeButtonsProvider = _CaseTypeButtonsProvider_;
+        .config((_DashboardCaseTypeButtonsProvider_) => {
+          DashboardCaseTypeButtonsProvider = _DashboardCaseTypeButtonsProvider_;
         });
     }
   });

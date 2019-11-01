@@ -1,8 +1,8 @@
 (function (angular, $, _) {
   var module = angular.module('civicase-base');
 
-  module.provider('CaseTypeButtons', function () {
-    var caseTypeButtons = {};
+  module.provider('DashboardCaseTypeButtons', function () {
+    var dashboardCaseTypeButtons = {};
 
     this.addButtons = addButtons;
     this.$get = $get;
@@ -13,7 +13,7 @@
      * @returns {object[]} the list of case types.
      */
     function $get () {
-      return caseTypeButtons;
+      return dashboardCaseTypeButtons;
     }
 
     /**
@@ -27,13 +27,13 @@
      * @param {ButtonConfig[]} buttonsConfig a list of case type buttons configurations.
      */
     function addButtons (caseTypeName, buttonsConfig) {
-      var areButtonsDefined = !!caseTypeButtons[caseTypeName];
+      var areButtonsDefined = !!dashboardCaseTypeButtons[caseTypeName];
 
       if (!areButtonsDefined) {
-        caseTypeButtons[caseTypeName] = [];
+        dashboardCaseTypeButtons[caseTypeName] = [];
       }
 
-      caseTypeButtons[caseTypeName] = caseTypeButtons[caseTypeName]
+      dashboardCaseTypeButtons[caseTypeName] = dashboardCaseTypeButtons[caseTypeName]
         .concat(buttonsConfig);
     }
   });

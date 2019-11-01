@@ -6,9 +6,9 @@
   /**
    * CaseType Service
    *
-   * @param {object} CaseTypeButtons the case type buttons map.
+   * @param {object} DashboardCaseTypeButtons the case type buttons map.
    */
-  function CaseType (CaseTypeButtons) {
+  function CaseType (DashboardCaseTypeButtons) {
     var caseTypes = CRM['civicase-base'].caseTypes;
 
     this.getAll = getAll;
@@ -23,13 +23,13 @@
     }
 
     /**
-     * Returns the buttons for the given case type.
+     * Returns the Dashboard buttons for the given case type.
      *
      * @param {string} caseTypeName the name of the case type to get the buttons for.
      * @returns {object[]} a list of buttons.
      */
     function getButtonsForCaseType (caseTypeName) {
-      return CaseTypeButtons[caseTypeName] || [];
+      return DashboardCaseTypeButtons[caseTypeName] || [];
     };
 
     /**
