@@ -16,15 +16,9 @@
     /**
      * Link function for civicaseCaseOverview
      *
-<<<<<<< HEAD
      * @param {object} $scope scope object
      * @param {object} element the directive element
      * @param {object} attrs attributes of the directive
-=======
-     * @param {object} $scope the directive's $scope object.
-     * @param {object} element the directive's element reference.
-     * @param {object} attrs the directive's element attributes.
->>>>>>> RSE-364: Fix lint issues
      */
     function civicaseCaseOverviewLink ($scope, element, attrs) {
       (function init () {
