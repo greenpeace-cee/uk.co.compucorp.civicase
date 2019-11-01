@@ -6,7 +6,7 @@
   /**
    * CaseType Service
    *
-   * @param CaseTypeButtons
+   * @param {object} CaseTypeButtons the case type buttons map.
    */
   function CaseType (CaseTypeButtons) {
     var caseTypes = CRM['civicase-base'].caseTypes;
