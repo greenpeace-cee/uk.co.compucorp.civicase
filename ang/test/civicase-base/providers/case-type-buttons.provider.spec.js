@@ -1,7 +1,7 @@
 /* eslint-env jasmine */
 
 (function (_, angular) {
-  describe('Awards case type buttons', () => {
+  describe('Case type buttons provider', () => {
     let CaseTypeButtons, CaseTypeButtonsProvider;
 
     beforeEach(() => {
