@@ -22,21 +22,25 @@
     describe('when adding buttons to case types', () => {
       beforeEach(() => {
         DashboardCaseTypeButtonsProvider.addButtons('housing_support', [{
+          icon: 'fa fa-cog',
           url: 'http://housing_support.co.uk/'
         }]);
         DashboardCaseTypeButtonsProvider.addButtons('adult_day_care_referral', [{
+          icon: 'fa fa-cog',
           url: 'http://adult_day_care_referral.co.uk/'
         }]);
       });
 
       it('adds the corresponding button to housing support', () => {
         expect(DashboardCaseTypeButtons.housing_support).toEqual([{
+          icon: 'fa fa-cog',
           url: 'http://housing_support.co.uk/'
         }]);
       });
 
       it('adds the corresponding button to adult day care referral', () => {
         expect(DashboardCaseTypeButtons.adult_day_care_referral).toEqual([{
+          icon: 'fa fa-cog',
           url: 'http://adult_day_care_referral.co.uk/'
         }]);
       });
