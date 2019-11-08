@@ -44,8 +44,9 @@ class CRM_Civicase_Hook_PreProcess_ProcessCaseCategoryCustomFieldsForEdit {
    * @param string $caseCategoryName
    *   Case Category name.
    */
-  private function processCaseCategoryCustomFieldsForEdit(CRM_Core_Form $form, $caseCategoryName) {
+  private function processCaseCategoryCustomFieldsForEdit(CRM_Core_Form &$form, $caseCategoryName) {
     $caseTypeId = CRM_Utils_Request::retrieve('subType', 'Positive', $form, TRUE);
+    $form->addElement('hidden', 'autofocus', TRUE);
     CRM_Custom_Form_CustomData::preProcess($form, NULL, $caseTypeId, 1, $caseCategoryName);
     CRM_Custom_Form_CustomData::buildQuickForm($form);
     CRM_Core_BAO_CustomGroup::setDefaults($form->_groupTree, $form->_defaults);
