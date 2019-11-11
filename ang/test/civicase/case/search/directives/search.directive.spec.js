@@ -1,7 +1,7 @@
 /* eslint-env jasmine */
-(function ($) {
+(function ($, _) {
   describe('civicaseSearch', function () {
-    var $controller, $rootScope, $scope, CaseFilters, crmApi, affixOriginalFunction,
+    var $controller, $rootScope, $scope, CaseFilters, CaseStatuses, CaseTypes, crmApi, affixOriginalFunction,
       offsetOriginalFunction, originalDoSearch, orginalParentScope, affixReturnValue,
       originalBindToRoute;
 
@@ -11,11 +11,13 @@
       $provide.value('crmApi', crmApi);
     }));
 
-    beforeEach(inject(function (_$controller_, $q, _$rootScope_, _CaseFilters_) {
+    beforeEach(inject(function (_$controller_, $q, _$rootScope_, _CaseFilters_, _CaseStatuses_, _CaseTypes_) {
       $controller = _$controller_;
       $rootScope = _$rootScope_;
       $scope = $rootScope.$new();
       CaseFilters = _CaseFilters_;
+      CaseStatuses = _CaseStatuses_.values;
+      CaseTypes = _CaseTypes_.get();
 
       crmApi.and.returnValue($q.resolve({ values: [] }));
     }));
@@ -182,7 +184,7 @@
       });
 
       it('should build filter description', function () {
-        expect($scope.filterDescription).toEqual([ { label: 'Case Manager', text: 'Me' } ]);
+        expect($scope.filterDescription).toEqual([{ label: 'Case Manager', text: 'Me' }]);
       });
 
       it('should close the dropdown', function () {
@@ -213,7 +215,138 @@
 
     describe('mapSelectOptions()', function () {
       it('returns a mapped response', function () {
-        expect($scope.caseTypeOptions[0]).toEqual(jasmine.objectContaining({id: jasmine.any(String), text: jasmine.any(String), color: jasmine.any(String), icon: jasmine.any(String)}));
+        expect($scope.caseTypeOptions[0]).toEqual(jasmine.objectContaining({ id: jasmine.any(String), text: jasmine.any(String), color: jasmine.any(String), icon: jasmine.any(String) }));
+      });
+    });
+
+    describe('updating the search title', () => {
+      const updateTitleEventName = 'civicase::case-search::page-title-updated';
+
+      describe('when a case has been selected to be displayed', () => {
+        const caseName = 'Housing Support';
+
+        beforeEach(() => {
+          $scope.$emit(updateTitleEventName, caseName);
+        });
+
+        it('sets the title equal to the provided case name', () => {
+          expect($scope.pageTitle).toEqual(caseName);
+        });
+      });
+
+      describe('when no cases have been selected', () => {
+        describe('when no filters have been applied', () => {
+          beforeEach(() => {
+            $scope.filters = {};
+
+            $scope.$emit(updateTitleEventName);
+          });
+
+          it('displays an "all open cases" title', () => {
+            expect($scope.pageTitle).toEqual('All Open  Cases');
+          });
+        });
+
+        describe('when cases are filtered by case type category', () => {
+          beforeEach(() => {
+            $scope.filters = {
+              case_type_category: '1'
+            };
+
+            $scope.$emit(updateTitleEventName);
+          });
+
+          it('displays an "all open cases" title', () => {
+            expect($scope.pageTitle).toEqual('All Open  Cases');
+          });
+        });
+
+        describe('when there are filters not used for describing the title', () => {
+          beforeEach(() => {
+            $scope.filters = [{ case_manager: [1] }];
+
+            $scope.$emit(updateTitleEventName);
+          });
+
+          it('displays a "catch all" title for all extra filters', () => {
+            expect($scope.pageTitle).toEqual('Case Search Results');
+          });
+        });
+
+        describe('when the filters can be used to describe the title', () => {
+          let expectedTitle;
+
+          describe('when filtering only by case statuses', () => {
+            beforeEach(() => {
+              expectedTitle = `${CaseStatuses['1'].label} & ${CaseStatuses['2'].label}  Cases`;
+              $scope.filters = {
+                status_id: [
+                  CaseStatuses['1'].value,
+                  CaseStatuses['2'].value
+                ]
+              };
+
+              $scope.$emit(updateTitleEventName);
+            });
+
+            it('displays title for the statuses', () => {
+              expect($scope.pageTitle).toEqual(expectedTitle);
+            });
+          });
+
+          describe('when filtering only by case types', () => {
+            beforeEach(() => {
+              expectedTitle = `All Open ${CaseTypes['1'].title} & ${CaseTypes['2'].title} Cases`;
+              $scope.filters = {
+                case_type_id: [
+                  CaseTypes['1'].name,
+                  CaseTypes['2'].name
+                ]
+              };
+
+              $scope.$emit(updateTitleEventName);
+            });
+
+            it('displays a title for the case types', () => {
+              expect($scope.pageTitle).toEqual(expectedTitle);
+            });
+          });
+
+          describe('when filtering by both case statuses and case types', () => {
+            beforeEach(() => {
+              expectedTitle = `${CaseStatuses['1'].label} & ${CaseStatuses['2'].label}` +
+                ` ${CaseTypes['1'].title} & ${CaseTypes['2'].title} Cases`;
+              $scope.filters = {
+                status_id: [
+                  CaseStatuses['1'].value,
+                  CaseStatuses['2'].value
+                ],
+                case_type_id: [
+                  CaseTypes['1'].name,
+                  CaseTypes['2'].name
+                ]
+              };
+
+              $scope.$emit(updateTitleEventName);
+            });
+
+            it('displays a title for the case statuses and case types', () => {
+              expect($scope.pageTitle).toEqual(expectedTitle);
+            });
+          });
+        });
+
+        describe('when a case count is provided', () => {
+          const randomCount = _.random(0, 1000);
+
+          beforeEach(() => {
+            $scope.$emit(updateTitleEventName, null, randomCount);
+          });
+
+          it('adds the count at the end of the title', () => {
+            expect($scope.pageTitle).toEqual(`All Open  Cases (${randomCount})`);
+          });
+        });
       });
     });
 
@@ -229,4 +362,4 @@
       });
     }
   });
-}(CRM.$));
+}(CRM.$, CRM._));

@@ -379,32 +379,30 @@
      */
     function setPageTitle (event, displayNameOfSelectedItem, totalCount) {
       var filters = $scope.filters;
+      var hasCaseTypeFilters = filters.case_type_id && filters.case_type_id.length;
+      var hasFiltersNotUsedForTitle = _.size(_.omit(filters, ['status_id', 'case_type_category', 'case_type_id']));
+      var hasStatusFilters = filters.status_id && filters.status_id.length;
+      var hasTotalCount = typeof totalCount === 'number';
 
       if (displayNameOfSelectedItem) {
         $scope.pageTitle = displayNameOfSelectedItem;
         return;
       }
 
-      if (_.size(_.omit(filters, ['status_id', 'case_type_id']))) {
+      if (hasFiltersNotUsedForTitle) {
         $scope.pageTitle = ts('Case Search Results');
       } else {
-        var status = [];
-        if (filters.status_id && filters.status_id.length) {
-          _.each(filters.status_id, function (s) {
-            status.push(_.findWhere(caseStatuses, { name: s }).label);
-          });
-        } else {
-          status = [ts('All Open')];
-        }
-        var type = [];
-        if (filters.case_type_id && filters.case_type_id.length) {
-          _.each(filters.case_type_id, function (t) {
-            type.push(_.findWhere(caseTypes, { name: t }).title);
-          });
-        }
-        $scope.pageTitle = status.join(' & ') + ' ' + type.join(' & ') + ' ' + ts('Cases');
+        var status = hasStatusFilters
+          ? CaseStatus.getLabelsForValues(filters.status_id)
+          : [ts('All Open')];
+        var types = hasCaseTypeFilters
+          ? CaseType.getTitlesForNames(filters.case_type_id)
+          : [];
+
+        $scope.pageTitle = status.join(' & ') + ' ' + types.join(' & ') + ' ' + ts('Cases');
       }
-      if (typeof totalCount === 'number') {
+
+      if (hasTotalCount) {
         $scope.pageTitle += ' (' + totalCount + ')';
       }
     }
