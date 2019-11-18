@@ -1,7 +1,10 @@
 /* eslint-env jasmine */
 
 describe('Case Details People Tab', () => {
-  let $controller, $rootScope, $scope, CasesData, ContactsData, crmConfirmDialog, originalCrmConfirm, originalSelect2;
+  let $controller, $rootScope, $scope, CasesData, caseRoleSelectorContact,
+    ContactsData, crmConfirmDialog, originalCrmConfirm, originalDialog,
+    originalSelect2;
+  const CONTACT_CANT_HAVE_ROLE_MESSAGE = 'Case clients cannot be selected for a case role. Please select another contact.';
 
   beforeEach(module('civicase', 'civicase.data'));
 
@@ -16,8 +19,8 @@ describe('Case Details People Tab', () => {
     $scope.refresh = jasmine.createSpy('refresh');
 
     originalCrmConfirm = CRM.confirm;
+    originalDialog = CRM.$.fn.dialog;
     originalSelect2 = CRM.$.fn.select2;
-    CRM.$.fn.select2 = jasmine.createSpy('select2');
     crmConfirmDialog = CRM.$('<div class="mock-crm-confirm-dialog"></div>');
     CRM.confirm = function (options) {
       crmConfirmDialog.append(options.message);
@@ -25,10 +28,19 @@ describe('Case Details People Tab', () => {
 
       return crmConfirmDialog;
     };
+    CRM.$.fn.dialog = jasmine.createSpy('dialog').and.returnValue(crmConfirmDialog);
+    CRM.$.fn.select2 = jasmine.createSpy('select2').and.callFake(function (option) {
+      if (option === 'data') {
+        return caseRoleSelectorContact;
+      } else {
+        return crmConfirmDialog;
+      }
+    });
   }));
 
   afterEach(() => {
     CRM.confirm = originalCrmConfirm;
+    CRM.$.fn.dialog = originalDialog;
     CRM.$.fn.select2 = originalSelect2;
 
     crmConfirmDialog.remove();
@@ -88,6 +100,10 @@ describe('Case Details People Tab', () => {
             subject: `${contact.display_name} added as ${roleName}`
           }]
         ]));
+      });
+
+      it('closes the contact selection dialog', () => {
+        expect(CRM.$.fn.dialog).toHaveBeenCalledWith('close');
       });
     });
 
@@ -149,6 +165,66 @@ describe('Case Details People Tab', () => {
           }]
         ]));
       });
+
+      it('closes the contact selection dialog', () => {
+        expect(CRM.$.fn.dialog).toHaveBeenCalledWith('close');
+      });
+    });
+
+    describe('when assigning a role to a client', () => {
+      beforeEach(() => {
+        var client = CRM._.first($scope.item.client);
+        $scope.assignRoleOrClient({
+          relationship_type_id: relationshipTypeId,
+          role: roleName
+        });
+        setRoleContact(CRM._.assign({}, client, {
+          id: client.contact_id
+        }));
+        setRoleDescription(roleDescription);
+        crmConfirmDialog.trigger('crmConfirm:yes');
+        $rootScope.$digest();
+      });
+
+      it('displays an error message', () => {
+        expect(crmConfirmDialog.text()).toContain(CONTACT_CANT_HAVE_ROLE_MESSAGE);
+      });
+
+      it('does not make api requests', () => {
+        expect($scope.refresh).not.toHaveBeenCalled();
+      });
+
+      it('does not close the contact selection dialog', () => {
+        expect(CRM.$.fn.dialog).not.toHaveBeenCalledWith('close');
+      });
+    });
+
+    describe('when replacing a role with a client', () => {
+      beforeEach(() => {
+        var client = CRM._.first($scope.item.client);
+        $scope.replaceRoleOrClient({
+          relationship_type_id: relationshipTypeId,
+          role: roleName
+        });
+        setRoleContact(CRM._.assign({}, client, {
+          id: client.contact_id
+        }));
+        setRoleDescription(roleDescription);
+        crmConfirmDialog.trigger('crmConfirm:yes');
+        $rootScope.$digest();
+      });
+
+      it('displays an error message', () => {
+        expect(crmConfirmDialog.text()).toContain(CONTACT_CANT_HAVE_ROLE_MESSAGE);
+      });
+
+      it('does not make api requests', () => {
+        expect($scope.refresh).not.toHaveBeenCalled();
+      });
+
+      it('does not close the contact selection dialog', () => {
+        expect(CRM.$.fn.dialog).not.toHaveBeenCalledWith('close');
+      });
     });
 
     describe('when adding a new case client', () => {
@@ -180,6 +256,10 @@ describe('Case Details People Tab', () => {
             subject: `${contact.display_name} added as Client`
           }]
         ]));
+      });
+
+      it('closes the contact selection dialog', () => {
+        expect(CRM.$.fn.dialog).toHaveBeenCalledWith('close');
       });
     });
 
@@ -230,6 +310,10 @@ describe('Case Details People Tab', () => {
           }]
         ]));
       });
+
+      it('closes the contact selection dialog', () => {
+        expect(CRM.$.fn.dialog).toHaveBeenCalledWith('close');
+      });
     });
   });
 
@@ -249,11 +333,11 @@ describe('Case Details People Tab', () => {
    */
   function setRoleContact (contact) {
     CRM.$('[name=caseRoleSelector]', crmConfirmDialog).val(contact.id);
-    CRM.$.fn.select2.and.returnValue({
+    caseRoleSelectorContact = {
       id: contact.id,
       text: contact.display_name,
       extra: contact
-    });
+    };
   }
 
   /**

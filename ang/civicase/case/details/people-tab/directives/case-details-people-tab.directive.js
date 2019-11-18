@@ -50,6 +50,7 @@
   function civicaseViewPeopleController ($q, $scope, allowMultipleCaseClients, crmApi, DateHelper,
     ts, RelationshipType) {
     // The ts() and hs() functions help load strings for this module.
+    var CONTACT_CANT_HAVE_ROLE_MESSAGE = 'Case clients cannot be selected for a case role. Please select another contact.';
     var clients = _.indexBy($scope.item.client, 'contact_id');
     var item = $scope.item;
     var relTypes = RelationshipType.getAll();
@@ -214,7 +215,14 @@
         showDescriptionField: !isReplacingClient,
         role: role
       })
-        .then(function (contactPromptResult) {
+        .then(null, null, function (contactPromptResult) {
+          if (checkContactIsClient(contactPromptResult.contact.id)) {
+            contactPromptResult
+              .showContactSelectionError(CONTACT_CANT_HAVE_ROLE_MESSAGE);
+
+            return;
+          }
+
           var activitySubject = ts('%1 replaced %2 as %3', {
             1: contactPromptResult.contact.extra.display_name,
             2: role.display_name,
@@ -243,6 +251,7 @@
             );
           }
 
+          contactPromptResult.closeDialog();
           $scope.refresh(apiCalls);
         });
     };
@@ -318,7 +327,7 @@
         showDescriptionField: false,
         role: role
       })
-        .then(function (contactPromptResult) {
+        .then(null, null, function (contactPromptResult) {
           var activitySubject = ts('%1 added as Client', {
             1: contactPromptResult.contact.extra.display_name
           });
@@ -334,6 +343,7 @@
             }]
           ];
 
+          contactPromptResult.closeDialog();
           $scope.refresh(apiCalls);
         });
     }
@@ -351,7 +361,14 @@
         showDescriptionField: true,
         role: role
       })
-        .then(function (contactPromptResult) {
+        .then(null, null, function (contactPromptResult) {
+          if (checkContactIsClient(contactPromptResult.contact.id)) {
+            contactPromptResult
+              .showContactSelectionError(CONTACT_CANT_HAVE_ROLE_MESSAGE);
+
+            return;
+          }
+
           var activitySubject = ts('%1 added as %2', {
             1: contactPromptResult.contact.extra.display_name,
             2: role.role
@@ -366,8 +383,21 @@
             getCreateCaseRoleApiCalls(contactPromptResult)
           );
 
+          contactPromptResult.closeDialog();
           $scope.refresh(apiCalls);
         });
+    }
+
+    /**
+     * Determines if the given client id is already part of the list of case clients.
+     *
+     * @param {number} clientId
+     * @returns {boolean} true if the given client is part of the case.
+     */
+    function checkContactIsClient (clientId) {
+      return _.some(item.client, function (client) {
+        return client.contact_id === clientId;
+      });
     }
 
     /**
@@ -392,7 +422,7 @@
         modalBody += '<br/><textarea rows="3" cols="35" name="description" class="crm-form-textarea" style="margin-top: 10px;padding-left: 10px;border-color: #C2CFDE;color: #9494A4;" placeholder="Description"></textarea>';
       }
 
-      CRM.confirm({
+      var dialogElement = CRM.confirm({
         title: options.title,
         message: modalBody,
         open: function () {
@@ -408,19 +438,44 @@
           });
         }
       })
-        .on('crmConfirm:yes', function () {
+        .on('crmConfirm:yes', function (event) {
           var contact = $('[name=caseRoleSelector]', this).select2('data');
           var description = $('[name=description]', this).val();
 
-          deferred.resolve({
+          event.preventDefault();
+
+          deferred.notify({
+            closeDialog: closeDialog,
             contact: contact,
             description: description,
-            role: options.role
+            role: options.role,
+            showContactSelectionError: showContactSelectionError
           });
         })
         .on('crmConfirm:no', function () {
           deferred.reject('cancelled');
         });
+
+      /**
+       * Closes the contact selection dialog and resolves the promise
+       */
+      function closeDialog () {
+        deferred.resolve();
+        dialogElement.dialog('close');
+      }
+
+      /**
+       * @param message
+       */
+      function showContactSelectionError (message) {
+        var contactSelector = $('[name=caseRoleSelector]', dialogElement).select2('container');
+        contactSelector.addClass('crm-error');
+
+        $('<p></p>')
+          .text(message)
+          .prepend('<i class="fa fa-times"></i>')
+          .appendTo(contactSelector);
+      }
 
       return deferred.promise;
     }
