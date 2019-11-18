@@ -5,7 +5,7 @@ describe('Case Details People Tab', () => {
 
   beforeEach(module('civicase', 'civicase.data'));
 
-  beforeEach(inject(function (_$controller_, _$rootScope_, _CasesData_, _ContactsData_) {
+  beforeEach(inject(function (_$controller_, _$q_, _$rootScope_, _CasesData_, _ContactsData_) {
     $controller = _$controller_;
     $rootScope = _$rootScope_;
     CasesData = _CasesData_;
@@ -49,18 +49,19 @@ describe('Case Details People Tab', () => {
 
     beforeEach(() => {
       contact = CRM._.sample(ContactsData.values);
-      relationshipTypeId = CRM._.uniq();
+      relationshipTypeId = CRM._.uniqueId();
     });
 
     describe('when assigning a new role', () => {
       beforeEach(() => {
-        $scope.assignRole({
+        $scope.assignRoleOrClient({
           relationship_type_id: relationshipTypeId,
           role: roleName
         });
         setRoleContact(contact);
         setRoleDescription(roleDescription);
         crmConfirmDialog.trigger('crmConfirm:yes');
+        $rootScope.$digest();
       });
 
       it('creates a new relationship between the case client and the selected contact using the given role', () => {
@@ -94,15 +95,16 @@ describe('Case Details People Tab', () => {
       beforeEach(() => {
         previousContact = CRM._.sample(ContactsData.values);
 
-        $scope.assignRole({
+        $scope.replaceRoleOrClient({
           contact_id: previousContact.contact_id,
           display_name: previousContact.display_name,
           relationship_type_id: relationshipTypeId,
           role: roleName
-        }, true);
+        });
         setRoleContact(contact);
         setRoleDescription(roleDescription);
         crmConfirmDialog.trigger('crmConfirm:yes');
+        $rootScope.$digest();
       });
 
       it('marks the current role relationship as finished', () => {
@@ -151,11 +153,12 @@ describe('Case Details People Tab', () => {
 
     describe('when adding a new case client', () => {
       beforeEach(() => {
-        $scope.assignRole({
+        $scope.assignRoleOrClient({
           role: 'Client'
         });
         setRoleContact(contact);
         crmConfirmDialog.trigger('crmConfirm:yes');
+        $rootScope.$digest();
       });
 
       it('creates a new client using the selected contact', () => {
@@ -184,13 +187,14 @@ describe('Case Details People Tab', () => {
       beforeEach(() => {
         previousContact = CRM._.sample(ContactsData.values);
 
-        $scope.assignRole({
+        $scope.replaceRoleOrClient({
           contact_id: previousContact.contact_id,
           display_name: previousContact.display_name,
           role: 'Client'
         }, true);
         setRoleContact(contact);
         crmConfirmDialog.trigger('crmConfirm:yes');
+        $rootScope.$digest();
       });
 
       it('removes the existing client from the case', () => {

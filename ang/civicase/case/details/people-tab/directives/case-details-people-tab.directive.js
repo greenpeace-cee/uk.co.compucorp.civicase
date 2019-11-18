@@ -16,8 +16,30 @@
   module.controller('civicaseViewPeopleController', civicaseViewPeopleController);
 
   /**
+   * @typedef {{
+   *   contact_id: number,
+   *   contact_sub_type: string,
+   *   contact_type: string,
+   *   display_name: string,
+   *   relationship_type_id: number,
+   *   role: string,
+   * }} Role
+   * @typedef {{
+   *  contact: {
+   *    id: number,
+   *    extra: {
+   *      display_name: string
+   *    }
+   *  },
+   *  description: string,
+   *  role: Role
+   * }} contactPromptResult
+   */
+
+  /**
    * ViewPeople Controller
    *
+   * @param {object} $q $q
    * @param {object} $scope $scope
    * @param {object} allowMultipleCaseClients allow multiple clients configuration value
    * @param {object} crmApi crmApi
@@ -25,8 +47,8 @@
    * @param {object} ts ts
    * @param {object} RelationshipType RelationshipType
    */
-  function civicaseViewPeopleController ($scope, allowMultipleCaseClients, crmApi,
-    DateHelper, ts, RelationshipType) {
+  function civicaseViewPeopleController ($q, $scope, allowMultipleCaseClients, crmApi, DateHelper,
+    ts, RelationshipType) {
     // The ts() and hs() functions help load strings for this module.
     var clients = _.indexBy($scope.item.client, 'contact_id');
     var item = $scope.item;
@@ -162,59 +184,67 @@
     };
 
     /**
-     * Assign the role to a contact
+     * Prompts the user to create either a new role or client related to the case.
      *
-     * @param {string} role role
-     * @param {boolean} replace replace
+     * @param {Role} role the role to assign to the case.
      */
-    $scope.assignRole = function (role, replace) {
-      var message = '<input name="caseRoleSelector" placeholder="' + ts('Select Contact') + '" />';
-      if (role.role !== 'Client') {
-        message = message + '<br/><textarea rows="3" cols="35" name="description" class="crm-form-textarea" style="margin-top: 10px;padding-left: 10px;border-color: #C2CFDE;color: #9494A4;" placeholder="Description"></textarea>';
+    $scope.assignRoleOrClient = function (role) {
+      var isAssigningRole = role && !!role.relationship_type_id;
+
+      if (isAssigningRole) {
+        assignRole(role);
+      } else {
+        assignClient();
       }
-      CRM.confirm({
-        title: replace ? ts('Replace %1', { 1: role.role }) : ts('Add %1', { 1: role.role }),
-        message: message,
-        open: function () {
-          $('[name=caseRoleSelector]', this).crmEntityRef({ create: true, api: { params: { contact_type: role.contact_type, contact_sub_type: role.contact_sub_type }, extra: ['display_name'] } });
-        }
-      }).on('crmConfirm:yes', function () {
-        var params;
-        var apiCalls = [];
-        var val = $('[name=caseRoleSelector]', this).val();
-        var desc = $('[name=description]', this).val();
-        if (replace) {
-          apiCalls.push(unassignRoleCall(role));
-        }
-        if (val) {
-          var newContact = $('[name=caseRoleSelector]', this).select2('data').extra.display_name;
-          // Add case role
-          if (role.relationship_type_id) {
-            params = {
-              relationship_type_id: role.relationship_type_id,
-              start_date: 'now',
-              end_date: null,
-              contact_id_b: val,
+    };
+
+    /**
+     * Replaces the given role or client with another one selected by the user.
+     *
+     * @param {Role} role the role to replace.
+     */
+    $scope.replaceRoleOrClient = function (role) {
+      var isReplacingClient = !role.relationship_type_id;
+      var activityTypeId = isReplacingClient
+        ? 'Reassigned Case'
+        : 'Assign Case Role';
+
+      promptForContact({
+        title: ts('Replace %1', { 1: role.role }),
+        showDescriptionField: !isReplacingClient,
+        role: role
+      })
+        .then(function (contactPromptResult) {
+          var activitySubject = ts('%1 replaced %2 as %3', {
+            1: contactPromptResult.contact.extra.display_name,
+            2: role.display_name,
+            3: role.role
+          });
+          var apiCalls = [
+            unassignRoleCall(role),
+            getCreateRoleActivityApiCall({
+              activity_type_id: activityTypeId,
+              subject: activitySubject,
+              target_contact_id: [
+                contactPromptResult.contact.id,
+                role.contact_id
+              ]
+            })
+          ];
+
+          if (isReplacingClient) {
+            apiCalls.push(['CaseContact', 'create', {
               case_id: item.id,
-              description: desc
-            };
-            _.each(item.client, function (client) {
-              params.contact_id_a = client.contact_id;
-              apiCalls.push(['Relationship', 'create', params]);
-            });
-          } else { // Add case client
-            apiCalls.push(['CaseContact', 'create', { case_id: item.id, contact_id: val }]);
+              contact_id: contactPromptResult.contact.id
+            }]);
+          } else {
+            apiCalls = apiCalls.concat(
+              getCreateCaseRoleApiCalls(contactPromptResult)
+            );
           }
-          apiCalls.push(['Activity', 'create', {
-            case_id: item.id,
-            target_contact_id: replace ? [val, role.contact_id] : val,
-            status_id: 'Completed',
-            activity_type_id: role.relationship_type_id ? 'Assign Case Role' : (replace ? 'Reassigned Case' : 'Add Client To Case'),
-            subject: replace ? ts('%1 replaced %2 as %3', { 1: newContact, 2: role.display_name, 3: role.role }) : ts('%1 added as %2', { 1: newContact, 2: role.role })
-          }]);
+
           $scope.refresh(apiCalls);
-        }
-      });
+        });
     };
 
     /**
@@ -238,6 +268,162 @@
         $scope.refresh(apiCalls);
       });
     };
+
+    /**
+     * Returns the parameters needed to create a completed activity related to the case.
+     *
+     * @param {object} extraParams extra parameters to pass to the activity creation call.
+     * @returns {[string, string, object]} the create activity api call params.
+     */
+    function getCreateRoleActivityApiCall (extraParams) {
+      return ['Activity', 'create', _.extend({}, {
+        case_id: item.id,
+        status_id: 'Completed'
+      }, extraParams)];
+    }
+
+    /**
+     * Returns all the calls needed to create relationships between the selected contact and all the
+     * clients related to the case.
+     *
+     * @param {contactPromptResult} contactPromptResult the contact returned by the confirm dialog
+     * @returns {Array[]} a list of api calls.
+     */
+    function getCreateCaseRoleApiCalls (contactPromptResult) {
+      var params = {
+        relationship_type_id: contactPromptResult.role.relationship_type_id,
+        start_date: 'now',
+        end_date: null,
+        contact_id_b: contactPromptResult.contact.id,
+        case_id: item.id,
+        description: contactPromptResult.description
+      };
+
+      return _.map(item.client, function (client) {
+        params.contact_id_a = client.contact_id;
+
+        return ['Relationship', 'create', params];
+      });
+    }
+
+    /**
+     * Promps for a client contact and assigns it to the case. This event is also recorded as an activity related
+     * to the case.
+     */
+    function assignClient () {
+      var role = { role: ts('Client') };
+
+      promptForContact({
+        title: ts('Add Client'),
+        showDescriptionField: false,
+        role: role
+      })
+        .then(function (contactPromptResult) {
+          var activitySubject = ts('%1 added as Client', {
+            1: contactPromptResult.contact.extra.display_name
+          });
+          var apiCalls = [
+            getCreateRoleActivityApiCall({
+              activity_type_id: 'Add Client To Case',
+              subject: activitySubject,
+              target_contact_id: contactPromptResult.contact.id
+            }),
+            ['CaseContact', 'create', {
+              case_id: item.id,
+              contact_id: contactPromptResult.contact.id
+            }]
+          ];
+
+          $scope.refresh(apiCalls);
+        });
+    }
+
+    /**
+     * Prompts the user to select a contact to assign them to the case. Relationships between
+     * the selected contact and the case clients are created using the provided role. This event is also
+     * recorded as an activity related to the case.
+     *
+     * @param {Role} role the role details.
+     */
+    function assignRole (role) {
+      promptForContact({
+        title: ts('Add %1', { 1: role.role }),
+        showDescriptionField: true,
+        role: role
+      })
+        .then(function (contactPromptResult) {
+          var activitySubject = ts('%1 added as %2', {
+            1: contactPromptResult.contact.extra.display_name,
+            2: role.role
+          });
+          var apiCalls = [
+            getCreateRoleActivityApiCall({
+              activity_type_id: 'Assign Case Role',
+              subject: activitySubject,
+              target_contact_id: contactPromptResult.contact.id
+            })
+          ].concat(
+            getCreateCaseRoleApiCalls(contactPromptResult)
+          );
+
+          $scope.refresh(apiCalls);
+        });
+    }
+
+    /**
+     * Displays a confirmation dialog used to select a contact. An optional description input can also be
+     * included in the confirmation dialog.
+     *
+     * @typedef {{
+     *   showDescriptionField: boolean,
+     *   role: Role,
+     *   title: string
+     * }} ContactPromptOptions
+     * @param {ContactPromptOptions} options the prompt options
+     * @returns {Promise} a promise that is resolved when the dialog is confirmed.
+     */
+    function promptForContact (options) {
+      var deferred = $q.defer();
+      options = _.assign({ roles: {} }, options);
+
+      var modalBody = '<input name="caseRoleSelector" placeholder="' + ts('Select Contact') + '" />';
+
+      if (options.showDescriptionField) {
+        modalBody += '<br/><textarea rows="3" cols="35" name="description" class="crm-form-textarea" style="margin-top: 10px;padding-left: 10px;border-color: #C2CFDE;color: #9494A4;" placeholder="Description"></textarea>';
+      }
+
+      CRM.confirm({
+        title: options.title,
+        message: modalBody,
+        open: function () {
+          $('[name=caseRoleSelector]', this).crmEntityRef({
+            create: true,
+            api: {
+              extra: ['display_name'],
+              params: {
+                contact_type: options.role.contact_type,
+                contact_sub_type: options.role.contact_sub_type
+              }
+            }
+          });
+        }
+      })
+        .on('crmConfirm:yes', function () {
+          var contact = $('[name=caseRoleSelector]', this).select2('data');
+          var description = $('[name=description]', this).val();
+
+          deferred.resolve({
+            contact: contact,
+            description: description,
+            role: options.role
+          });
+        })
+        .on('crmConfirm:no', function () {
+          deferred.reject('cancelled');
+        });
+
+      return deferred.promise;
+    }
 
     /**
      * Unassign role

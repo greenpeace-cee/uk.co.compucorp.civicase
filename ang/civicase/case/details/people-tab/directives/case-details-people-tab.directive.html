@@ -15,10 +15,10 @@
         </button>
         <ul class="dropdown-menu dropdown-menu-right">
           <li ng-if="allowMultipleCaseClients">
-            <a href ng-click="assignRole({role: ts('Client')})">{{ ts('Client') }}</a>
+            <a href ng-click="assignRoleOrClient()">{{ ts('Client') }}</a>
           </li>
           <li ng-repeat="role in allRoles">
-            <a href ng-click="assignRole(role)">{{ role.role }}</a>
+            <a href ng-click="assignRoleOrClient(role)">{{ role.role }}</a>
           </li>
         </ul>
       </div>
@@ -78,7 +78,7 @@
         </tr>
       </thead>
       <tbody class="civicase__people-tab__table-body">
-        <tr ng-repeat="role in roles track by $index" ng-if="!isRolesLoading" ng-class="{unassigned: !role.contact_id}">
+        <tr class="contact--{{role.contact_id}}" ng-repeat="role in roles track by $index" ng-if="!isRolesLoading" ng-class="{unassigned: !role.contact_id}">
           <td class="civicase__people-tab__table-column civicase__people-tab__table-column--first">
             <span ng-if="role.contact_id" class="civicase__checkbox" >
               <input id="select-role-{{ $index }}" class="civicase__people-tab__table-checkbox" type="checkbox" ng-model="role.checked" ng-click="setSelectionMode('checked', 'roles')" />
@@ -98,7 +98,10 @@
           <td class="civicase__people-tab__table-column">{{ role.phone }}</td>
           <td class="civicase__people-tab__table-column">{{ role.email }}</td>
           <td class="civicase__people-tab__table-column civicase__people-tab__table-column--last">
-            <div class="civicase__people-tab__table-assign-icon" ng-if="!role.contact_id" ng-click="assignRole(role)">
+            <div class="civicase__people-tab__table-assign-icon"
+              ng-if="!role.contact_id"
+              ng-click="assignRoleOrClient(role)"
+            >
               <i class="fa fa-user-plus"></i>
             </div>
             <div ng-if="role.contact_id" class="btn-group btn-group-sm">
@@ -107,10 +110,10 @@
               </button>
               <ul class="dropdown-menu dropdown-menu-right">
                 <li>
-                  <a href ng-click="assignRole(role, true)">{{ ts('Reassign %1', {1: role.role}) }}</a>
+                  <a href ng-click="replaceRoleOrClient(role)">{{ ts('Reassign %1', {1: role.role}) }}</a>
                 </li>
                 <li ng-if="role.relationship_type_id || allowMultipleCaseClients">
-                  <a href ng-click="assignRole(role)">{{ ts('Add Another %1', {1: role.role}) }}</a>
+                  <a href ng-click="assignRoleOrClient(role)">{{ ts('Add Another %1', {1: role.role}) }}</a>
                 </li>
                 <li ng-if="role.relationship_type_id || item.client.length > 1">
                   <a href ng-click="unassignRole(role)">{{ ts('Remove %1', {1: role.role}) }}</a>
