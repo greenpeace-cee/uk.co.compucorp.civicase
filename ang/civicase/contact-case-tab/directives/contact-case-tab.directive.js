@@ -57,7 +57,8 @@
         name: 'related',
         title: 'Other cases for this contact',
         filterParams: {
-          case_manager: $scope.contactId,
+          contact_id: { '!=': $scope.contactId },
+          contact_involved: $scope.contactId,
           is_deleted: 0
         },
         showContactRole: true
