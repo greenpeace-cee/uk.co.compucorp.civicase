@@ -78,13 +78,13 @@ function civicase_civicrm_tabset($tabsetName, &$tabs, $context) {
  * Count the number of Cases for current user.
  */
 function get_case_count() {
-  $params = [
+  $noOfCases = civicrm_api3('Case', 'getcount', [
     'contact_id' => $context['contact_id'],
     'case_type_id.is_active' => TRUE,
-    'options' => ['is_count' => TRUE],
-  ];
+    'is_deleted' => FALSE,
+  ]);
 
-  return civicrm_api3_case_get($params)['values'];
+  return $noOfCases;
 }
 
 /**

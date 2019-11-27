@@ -59,7 +59,8 @@ function civicrm_api3_case_getstats(array $params) {
   $query->select(['a.case_type_id as case_type_id, a.status_id as status_id, COUNT(a.id) as count']);
   $caseTypesParams = [
     'options' => ['limit' => 0],
-    'return' => 'id, is_active',
+    'is_active' => 1,
+    'return' => 'id',
   ];
 
   $caseTypes = [];
@@ -103,9 +104,7 @@ function civicrm_api3_case_getstats(array $params) {
   foreach ($result as $row) {
     $tabulated[$row['case_type_id']][$row['status_id']] = $row['count'];
     $tabulated['all'] += [$row['status_id'] => 0];
-    if($caseTypes['values'][$row['case_type_id']]['is_active']) {
-      $tabulated['all'][$row['status_id']] += (int) $row['count'];
-    }
+    $tabulated['all'][$row['status_id']] += (int) $row['count'];
   }
 
   return civicrm_api3_create_success($tabulated, $params, 'Case', 'getstats');
