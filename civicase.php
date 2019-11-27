@@ -28,6 +28,8 @@ function civicase_civicrm_tabset($tabsetName, &$tabs, $context) {
           $tab['url'] = CRM_Utils_System::url('civicrm/case/contact-case-tab', [
             'cid' => $context['contact_id'],
           ]);
+
+          $tab['count'] = get_case_count();
         }
         if ($tab['id'] === 'activity') {
           $activity_types = array_flip(CRM_Activity_BAO_Activity::buildOptions('activity_type_id', 'validate'));
@@ -55,7 +57,7 @@ function civicase_civicrm_tabset($tabsetName, &$tabs, $context) {
           ]),
           'title' => ts('Cases'),
           'weight' => 20,
-          'count' => CRM_Contact_BAO_Contact::getCountComponent('case', $context['contact_id']),
+          'count' => get_case_count(),
           'class' => 'livePage',
         ];
       }
@@ -70,6 +72,19 @@ function civicase_civicrm_tabset($tabsetName, &$tabs, $context) {
     $loader->setModules(['civicase']);
     $loader->load();
   }
+}
+
+/**
+ * Count the number of Cases for current user.
+ */
+function get_case_count() {
+  $params = [
+    'contact_id' => $context['contact_id'],
+    'case_type_id.is_active' => TRUE,
+    'options' => ['is_count' => TRUE],
+  ];
+
+  return civicrm_api3_case_get($params)['values'];
 }
 
 /**
