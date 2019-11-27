@@ -28,15 +28,17 @@
         id: caseId,
         return: caseReturnParams,
         'api.Case.getcaselist.relatedCasesByContact': {
-          contact_id: {IN: '$value.contact_id'},
-          id: {'!=': '$value.id'},
+          contact_id: { IN: '$value.contact_id' },
+          id: { '!=': '$value.id' },
           is_deleted: 0,
+          'case_type_id.is_active': 1,
           return: caseListReturnParams
         },
         // Linked cases
         'api.Case.getcaselist.linkedCases': {
-          id: {IN: '$value.related_case_ids'},
+          id: { IN: '$value.related_case_ids' },
           is_deleted: 0,
+          'case_type_id.is_active': 1,
           return: caseListReturnParams
         },
         // For the "recent communication" panel
@@ -45,9 +47,9 @@
           is_current_revision: 1,
           is_test: 0,
           activity_type_id: { '!=': 'Bulk Email' },
-          'activity_type_id.grouping': {LIKE: '%communication%'},
+          'activity_type_id.grouping': { LIKE: '%communication%' },
           'status_id.filter': 1,
-          options: {limit: panelLimit, sort: 'activity_date_time DESC'},
+          options: { limit: panelLimit, sort: 'activity_date_time DESC' },
           return: activityReturnParams
         },
         // For the "tasks" panel
@@ -56,17 +58,17 @@
           is_current_revision: 1,
           is_test: 0,
           activity_type_id: { '!=': 'Bulk Email' },
-          'activity_type_id.grouping': {LIKE: '%task%'},
+          'activity_type_id.grouping': { LIKE: '%task%' },
           'status_id.filter': 0,
-          options: {limit: panelLimit, sort: 'activity_date_time ASC'},
+          options: { limit: panelLimit, sort: 'activity_date_time ASC' },
           return: activityReturnParams
         },
         // For the "Next Activity" panel
         'api.Activity.get.nextActivitiesWhichIsNotMileStone': {
           case_id: caseId,
-          status_id: {'!=': 'Completed'},
+          status_id: { '!=': 'Completed' },
           activity_type_id: { '!=': 'Bulk Email' },
-          'activity_type_id.grouping': {'NOT LIKE': '%milestone%'},
+          'activity_type_id.grouping': { 'NOT LIKE': '%milestone%' },
           options: {
             limit: 1
           },
@@ -77,7 +79,7 @@
           is_current_revision: 1,
           is_deleted: 0,
           activity_type_id: { '!=': 'Bulk Email' },
-          'status_id': 'Scheduled'
+          status_id: 'Scheduled'
         },
         // For the "scheduled-overdue" count
         'api.Activity.getcount.scheduled_overdue': {

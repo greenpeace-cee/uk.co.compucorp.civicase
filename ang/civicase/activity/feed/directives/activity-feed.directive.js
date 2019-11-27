@@ -401,7 +401,6 @@
         is_deleted: 0,
         is_test: 0,
         activity_type_id: { '!=': 'Bulk Email' },
-        case_filter: { 'case_type_id.is_active': 1 },
         options: {}
       };
 
@@ -410,6 +409,7 @@
       } else if (!$scope.displayOptions.include_case) {
         params.case_id = { 'IS NULL': 1 };
       } else {
+        params.case_filter = { 'case_type_id.is_active': 1 };
         returnParams.return = returnParams.return.concat(['case_id.case_type_id', 'case_id.status_id', 'case_id.contacts']);
       }
 
