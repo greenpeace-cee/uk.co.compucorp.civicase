@@ -401,6 +401,7 @@
         is_deleted: 0,
         is_test: 0,
         activity_type_id: { '!=': 'Bulk Email' },
+        case_filter: { 'case_type_id.is_active': 1 },
         options: {}
       };
 
