@@ -32,7 +32,9 @@
    *    }
    *  },
    *  description: string,
-   *  role: Role
+   *  event: document#event
+   *  role: Role,
+   *  showContactSelectionError: (message: string) => void
    * }} contactPromptResult
    */
 
@@ -210,13 +212,15 @@
         ? 'Reassigned Case'
         : 'Assign Case Role';
 
-      promptForContact({
-        title: ts('Replace %1', { 1: role.role }),
-        showDescriptionField: !isReplacingClient,
-        role: role
-      })
-        .then(null, null, function (contactPromptResult) {
+      promptForContact(
+        {
+          title: ts('Replace %1', { 1: role.role }),
+          showDescriptionField: !isReplacingClient,
+          role: role
+        },
+        function (contactPromptResult) {
           if (checkContactIsClient(contactPromptResult.contact.id)) {
+            contactPromptResult.event.preventDefault();
             contactPromptResult
               .showContactSelectionError(CONTACT_CANT_HAVE_ROLE_MESSAGE);
 
@@ -251,9 +255,9 @@
             );
           }
 
-          contactPromptResult.closeDialog();
           $scope.refresh(apiCalls);
-        });
+        }
+      );
     };
 
     /**
@@ -322,12 +326,13 @@
     function assignClient () {
       var role = { role: ts('Client') };
 
-      promptForContact({
-        title: ts('Add Client'),
-        showDescriptionField: false,
-        role: role
-      })
-        .then(null, null, function (contactPromptResult) {
+      promptForContact(
+        {
+          title: ts('Add Client'),
+          showDescriptionField: false,
+          role: role
+        },
+        function (contactPromptResult) {
           var activitySubject = ts('%1 added as Client', {
             1: contactPromptResult.contact.extra.display_name
           });
@@ -343,9 +348,9 @@
             }]
           ];
 
-          contactPromptResult.closeDialog();
           $scope.refresh(apiCalls);
-        });
+        }
+      );
     }
 
     /**
@@ -356,13 +361,15 @@
      * @param {Role} role the role details.
      */
     function assignRole (role) {
-      promptForContact({
-        title: ts('Add %1', { 1: role.role }),
-        showDescriptionField: true,
-        role: role
-      })
-        .then(null, null, function (contactPromptResult) {
+      promptForContact(
+        {
+          title: ts('Add %1', { 1: role.role }),
+          showDescriptionField: true,
+          role: role
+        },
+        function (contactPromptResult) {
           if (checkContactIsClient(contactPromptResult.contact.id)) {
+            contactPromptResult.event.preventDefault();
             contactPromptResult
               .showContactSelectionError(CONTACT_CANT_HAVE_ROLE_MESSAGE);
 
@@ -383,7 +390,6 @@
             getCreateCaseRoleApiCalls(contactPromptResult)
           );
 
-          contactPromptResult.closeDialog();
           $scope.refresh(apiCalls);
         });
     }
@@ -391,18 +397,18 @@
     /**
      * Determines if the given client id is already part of the list of case clients.
      *
-     * @param {number} clientId
+     * @param {number} contactId the contact id to check.
      * @returns {boolean} true if the given client is part of the case.
      */
-    function checkContactIsClient (clientId) {
+    function checkContactIsClient (contactId) {
       return _.some(item.client, function (client) {
-        return client.contact_id === clientId;
+        return client.contact_id === contactId;
       });
     }
 
     /**
      * Displays a confirmation dialog used to select a contact. An optional description input can also be
-     * included in the confirmation dialog.
+included in the confirmation dialog.
      *
      * @typedef {{
      *   showDescriptionField: boolean,
@@ -410,10 +416,10 @@
      *   title: string
      * }} ContactPromptOptions
      * @param {ContactPromptOptions} options the prompt options
-     * @returns {Promise} a promise that is resolved when the dialog is confirmed.
+     * @param {(contactPromptResult: contactPromptResult) => void} onConfirmCallback a callback executed after confirming
+     *   the dialog.
      */
-    function promptForContact (options) {
-      var deferred = $q.defer();
+    function promptForContact (options, onConfirmCallback) {
       options = _.assign({ roles: {} }, options);
 
       var modalBody = '<input name="caseRoleSelector" placeholder="' + ts('Select Contact') + '" />';
@@ -439,45 +445,41 @@
         }
       })
         .on('crmConfirm:yes', function (event) {
+          if (!onConfirmCallback) {
+            return;
+          }
+
           var contact = $('[name=caseRoleSelector]', this).select2('data');
           var description = $('[name=description]', this).val();
 
-          event.preventDefault();
-
-          deferred.notify({
-            closeDialog: closeDialog,
+          onConfirmCallback({
             contact: contact,
             description: description,
+            event: event,
             role: options.role,
             showContactSelectionError: showContactSelectionError
           });
-        })
-        .on('crmConfirm:no', function () {
-          deferred.reject('cancelled');
         });
 
       /**
-       * Closes the contact selection dialog and resolves the promise
-       */
-      function closeDialog () {
-        deferred.resolve();
-        dialogElement.dialog('close');
-      }
-
-      /**
-       * @param message
+       * Displays the given error message under the contact selection input.
+       *
+       * @param {string} message the error message to display under the contact selection.
        */
       function showContactSelectionError (message) {
         var contactSelector = $('[name=caseRoleSelector]', dialogElement).select2('container');
-        contactSelector.addClass('crm-error');
+        var hasError = contactSelector.find('.contact-selection-error').length > 0;
 
-        $('<p></p>')
+        if (hasError) {
+          return;
+        }
+
+        contactSelector.addClass('crm-error');
+        $('<p class="contact-selection-error"></p>')
           .text(message)
           .prepend('<i class="fa fa-times"></i>')
           .appendTo(contactSelector);
       }
-
-      return deferred.promise;
     }
 
     /**

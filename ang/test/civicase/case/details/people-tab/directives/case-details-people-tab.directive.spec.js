@@ -2,7 +2,7 @@
 
 describe('Case Details People Tab', () => {
   let $controller, $rootScope, $scope, CasesData, caseRoleSelectorContact,
-    ContactsData, crmConfirmDialog, originalCrmConfirm, originalDialog,
+    ContactsData, crmConfirmDialog, crmConfirmYesEvent, originalCrmConfirm,
     originalSelect2;
   const CONTACT_CANT_HAVE_ROLE_MESSAGE = 'Case clients cannot be selected for a case role. Please select another contact.';
 
@@ -19,16 +19,16 @@ describe('Case Details People Tab', () => {
     $scope.refresh = jasmine.createSpy('refresh');
 
     originalCrmConfirm = CRM.confirm;
-    originalDialog = CRM.$.fn.dialog;
     originalSelect2 = CRM.$.fn.select2;
     crmConfirmDialog = CRM.$('<div class="mock-crm-confirm-dialog"></div>');
+    crmConfirmYesEvent = CRM.$.Event('crmConfirm:yes');
+    crmConfirmYesEvent.preventDefault = jasmine.createSpy('preventDefault');
     CRM.confirm = function (options) {
       crmConfirmDialog.append(options.message);
       options.open();
 
       return crmConfirmDialog;
     };
-    CRM.$.fn.dialog = jasmine.createSpy('dialog').and.returnValue(crmConfirmDialog);
     CRM.$.fn.select2 = jasmine.createSpy('select2').and.callFake(function (option) {
       if (option === 'data') {
         return caseRoleSelectorContact;
@@ -40,7 +40,6 @@ describe('Case Details People Tab', () => {
 
   afterEach(() => {
     CRM.confirm = originalCrmConfirm;
-    CRM.$.fn.dialog = originalDialog;
     CRM.$.fn.select2 = originalSelect2;
 
     crmConfirmDialog.remove();
@@ -72,7 +71,7 @@ describe('Case Details People Tab', () => {
         });
         setRoleContact(contact);
         setRoleDescription(roleDescription);
-        crmConfirmDialog.trigger('crmConfirm:yes');
+        crmConfirmDialog.trigger(crmConfirmYesEvent);
         $rootScope.$digest();
       });
 
@@ -103,7 +102,7 @@ describe('Case Details People Tab', () => {
       });
 
       it('closes the contact selection dialog', () => {
-        expect(CRM.$.fn.dialog).toHaveBeenCalledWith('close');
+        expect(crmConfirmYesEvent.preventDefault).not.toHaveBeenCalled();
       });
     });
 
@@ -119,7 +118,7 @@ describe('Case Details People Tab', () => {
         });
         setRoleContact(contact);
         setRoleDescription(roleDescription);
-        crmConfirmDialog.trigger('crmConfirm:yes');
+        crmConfirmDialog.trigger(crmConfirmYesEvent);
         $rootScope.$digest();
       });
 
@@ -167,7 +166,7 @@ describe('Case Details People Tab', () => {
       });
 
       it('closes the contact selection dialog', () => {
-        expect(CRM.$.fn.dialog).toHaveBeenCalledWith('close');
+        expect(crmConfirmYesEvent.preventDefault).not.toHaveBeenCalled();
       });
     });
 
@@ -182,7 +181,7 @@ describe('Case Details People Tab', () => {
           id: client.contact_id
         }));
         setRoleDescription(roleDescription);
-        crmConfirmDialog.trigger('crmConfirm:yes');
+        crmConfirmDialog.trigger(crmConfirmYesEvent);
         $rootScope.$digest();
       });
 
@@ -195,7 +194,7 @@ describe('Case Details People Tab', () => {
       });
 
       it('does not close the contact selection dialog', () => {
-        expect(CRM.$.fn.dialog).not.toHaveBeenCalledWith('close');
+        expect(crmConfirmYesEvent.preventDefault).toHaveBeenCalled();
       });
     });
 
@@ -210,7 +209,7 @@ describe('Case Details People Tab', () => {
           id: client.contact_id
         }));
         setRoleDescription(roleDescription);
-        crmConfirmDialog.trigger('crmConfirm:yes');
+        crmConfirmDialog.trigger(crmConfirmYesEvent);
         $rootScope.$digest();
       });
 
@@ -223,7 +222,7 @@ describe('Case Details People Tab', () => {
       });
 
       it('does not close the contact selection dialog', () => {
-        expect(CRM.$.fn.dialog).not.toHaveBeenCalledWith('close');
+        expect(crmConfirmYesEvent.preventDefault).toHaveBeenCalled();
       });
     });
 
@@ -233,7 +232,7 @@ describe('Case Details People Tab', () => {
           role: 'Client'
         });
         setRoleContact(contact);
-        crmConfirmDialog.trigger('crmConfirm:yes');
+        crmConfirmDialog.trigger(crmConfirmYesEvent);
         $rootScope.$digest();
       });
 
@@ -259,7 +258,7 @@ describe('Case Details People Tab', () => {
       });
 
       it('closes the contact selection dialog', () => {
-        expect(CRM.$.fn.dialog).toHaveBeenCalledWith('close');
+        expect(crmConfirmYesEvent.preventDefault).not.toHaveBeenCalled();
       });
     });
 
@@ -273,7 +272,7 @@ describe('Case Details People Tab', () => {
           role: 'Client'
         }, true);
         setRoleContact(contact);
-        crmConfirmDialog.trigger('crmConfirm:yes');
+        crmConfirmDialog.trigger(crmConfirmYesEvent);
         $rootScope.$digest();
       });
 
@@ -312,7 +311,7 @@ describe('Case Details People Tab', () => {
       });
 
       it('closes the contact selection dialog', () => {
-        expect(CRM.$.fn.dialog).toHaveBeenCalledWith('close');
+        expect(crmConfirmYesEvent.preventDefault).not.toHaveBeenCalled();
       });
     });
   });
