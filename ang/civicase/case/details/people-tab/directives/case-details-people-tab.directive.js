@@ -25,6 +25,11 @@
    *   role: string,
    * }} Role
    * @typedef {{
+   *   showDescriptionField: boolean,
+   *   role: Role,
+   *   title: string
+   * }} ContactPromptOptions
+   * @typedef {{
    *  contact: {
    *    id: number,
    *    extra: {
@@ -209,7 +214,7 @@
     $scope.replaceRoleOrClient = function (role) {
       var isReplacingClient = !role.relationship_type_id;
 
-      promptForContact(
+      promptForContactThatIsNotCaseClient(
         {
           title: ts('Replace %1', { 1: role.role }),
           showDescriptionField: !isReplacingClient,
@@ -303,7 +308,7 @@
      * @param {Role} role the role details.
      */
     function assignRole (role) {
-      promptForContact(
+      promptForContactThatIsNotCaseClient(
         {
           title: ts('Add %1', { 1: role.role }),
           showDescriptionField: true,
@@ -358,14 +363,6 @@
      * @param {ContactPromptResult} contactPromptResult the contact returned by the confirm dialog
      */
     function handleAssignRole (contactPromptResult) {
-      if (checkContactIsClient(contactPromptResult.contact.id)) {
-        contactPromptResult.event.preventDefault();
-        contactPromptResult
-          .showContactSelectionError(CONTACT_CANT_HAVE_ROLE_MESSAGE);
-
-        return;
-      }
-
       var activitySubject = ts('%1 added as %2', {
         1: contactPromptResult.contact.extra.display_name,
         2: contactPromptResult.role.role
@@ -394,14 +391,6 @@
       var activityTypeId = isReplacingClient
         ? 'Reassigned Case'
         : 'Assign Case Role';
-
-      if (checkContactIsClient(contactPromptResult.contact.id)) {
-        contactPromptResult.event.preventDefault();
-        contactPromptResult
-          .showContactSelectionError(CONTACT_CANT_HAVE_ROLE_MESSAGE);
-
-        return;
-      }
 
       var activitySubject = ts('%1 replaced %2 as %3', {
         1: contactPromptResult.contact.extra.display_name,
@@ -438,11 +427,6 @@
      * Displays a confirmation dialog used to select a contact. An optional description input can also be
 included in the confirmation dialog.
      *
-     * @typedef {{
-     *   showDescriptionField: boolean,
-     *   role: Role,
-     *   title: string
-     * }} ContactPromptOptions
      * @param {ContactPromptOptions} options the prompt options
      * @param {(contactPromptResult: ContactPromptResult) => void} onConfirmCallback a callback executed after confirming
      *   the dialog.
@@ -508,6 +492,27 @@ included in the confirmation dialog.
           .prepend('<i class="fa fa-times"></i>')
           .appendTo(contactSelector);
       }
+    }
+
+    /**
+     * Prompts the user to select a contact, but rejects it if the selected contact is already a case client
+     * and displays an error message. Otherwise it executes the confirmation handler as normal.
+     *
+     * @param {ContactPromptOptions} promptOptions the options to pass to the contact prompt.
+     * @param {(contactPromptResult: ContactPromptResult) => void} contactSelectedHandler the handler to use when a contact is selected.
+     */
+    function promptForContactThatIsNotCaseClient (promptOptions, contactSelectedHandler) {
+      promptForContact(promptOptions, function (contactPromptResult) {
+        if (checkContactIsClient(contactPromptResult.contact.id)) {
+          contactPromptResult.event.preventDefault();
+          contactPromptResult
+            .showContactSelectionError(CONTACT_CANT_HAVE_ROLE_MESSAGE);
+
+          return;
+        }
+
+        contactSelectedHandler(contactPromptResult);
+      });
     }
 
     /**
