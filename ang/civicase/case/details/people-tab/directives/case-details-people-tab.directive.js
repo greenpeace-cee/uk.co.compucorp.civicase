@@ -199,11 +199,9 @@
     $scope.assignRoleOrClient = function (role) {
       var isAssigningRole = role && !!role.relationship_type_id;
 
-      if (isAssigningRole) {
-        assignRole(role);
-      } else {
-        assignClient();
-      }
+      isAssigningRole
+        ? assignRole(role)
+        : assignClient();
     };
 
     /**
