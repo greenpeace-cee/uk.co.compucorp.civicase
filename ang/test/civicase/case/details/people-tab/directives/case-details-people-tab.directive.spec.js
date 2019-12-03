@@ -342,7 +342,7 @@ describe('Case Details People Tab', () => {
   /**
    * Sets the description for the role being created using the confirm dialog.
    *
-   * @param {string} description a drescription for the role.
+   * @param {string} description a description for the role.
    */
   function setRoleDescription (description) {
     CRM.$('[name=description]', crmConfirmDialog).val(description);

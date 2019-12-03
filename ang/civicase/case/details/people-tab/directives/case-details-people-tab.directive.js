@@ -331,6 +331,72 @@
     }
 
     /**
+     * Returns the activity subject used for replacing a case contact.
+     *
+     * @param {ContactPromptResult} contactPromptResult the contact returned by the confirm dialog
+     * @returns {string} the activity subject.
+     */
+    function getActivitySubjectForReplaceCaseContact (contactPromptResult) {
+      return ts('%1 replaced %2 as %3', {
+        1: contactPromptResult.contact.extra.display_name,
+        2: contactPromptResult.role.display_name,
+        3: contactPromptResult.role.role
+      });
+    }
+
+    /**
+     * Returns the API calls necessary to replace the case client and record the event as an activity.
+     *
+     * @param {ContactPromptResult} contactPromptResult the contact returned by the confirm dialog
+     * @returns {Array} the list of api calls to replace the case client.
+     */
+    function getReplaceClientApiCalls (contactPromptResult) {
+      var activitySubject = getActivitySubjectForReplaceCaseContact(contactPromptResult);
+      var apiCalls = [
+        unassignRoleCall(contactPromptResult.role),
+        getCreateRoleActivityApiCall({
+          activity_type_id: 'Reassigned Case',
+          subject: activitySubject,
+          target_contact_id: [
+            contactPromptResult.contact.id,
+            contactPromptResult.role.contact_id
+          ]
+        }),
+        ['CaseContact', 'create', {
+          case_id: item.id,
+          contact_id: contactPromptResult.contact.id
+        }]
+      ];
+
+      return apiCalls;
+    }
+
+    /**
+     * Returns the API calls necessary to replace the case role and record the event as an activity.
+     *
+     * @param {ContactPromptResult} contactPromptResult the contact returned by the confirm dialog
+     * @returns {Array} the list of api calls to replace the case role.
+     */
+    function getReplaceRoleApiCalls (contactPromptResult) {
+      var activitySubject = getActivitySubjectForReplaceCaseContact(contactPromptResult);
+      var apiCalls = [
+        unassignRoleCall(contactPromptResult.role),
+        getCreateRoleActivityApiCall({
+          activity_type_id: 'Assign Case Role',
+          subject: activitySubject,
+          target_contact_id: [
+            contactPromptResult.contact.id,
+            contactPromptResult.role.contact_id
+          ]
+        })
+      ];
+
+      return apiCalls.concat(
+        getCreateCaseRoleApiCalls(contactPromptResult)
+      );
+    }
+
+    /**
      * Sends the API calls necessary to assign the given client contact to the
      * current case. This event is also recorded as an activity related
      * to the case.
@@ -388,37 +454,9 @@
      */
     function handleReplaceRoleOrClient (contactPromptResult) {
       var isReplacingClient = !contactPromptResult.role.relationship_type_id;
-      var activityTypeId = isReplacingClient
-        ? 'Reassigned Case'
-        : 'Assign Case Role';
-
-      var activitySubject = ts('%1 replaced %2 as %3', {
-        1: contactPromptResult.contact.extra.display_name,
-        2: contactPromptResult.role.display_name,
-        3: contactPromptResult.role.role
-      });
-      var apiCalls = [
-        unassignRoleCall(contactPromptResult.role),
-        getCreateRoleActivityApiCall({
-          activity_type_id: activityTypeId,
-          subject: activitySubject,
-          target_contact_id: [
-            contactPromptResult.contact.id,
-            contactPromptResult.role.contact_id
-          ]
-        })
-      ];
-
-      if (isReplacingClient) {
-        apiCalls.push(['CaseContact', 'create', {
-          case_id: item.id,
-          contact_id: contactPromptResult.contact.id
-        }]);
-      } else {
-        apiCalls = apiCalls.concat(
-          getCreateCaseRoleApiCalls(contactPromptResult)
-        );
-      }
+      var apiCalls = isReplacingClient
+        ? getReplaceClientApiCalls(contactPromptResult)
+        : getReplaceRoleApiCalls(contactPromptResult);
 
       $scope.refresh(apiCalls);
     }
