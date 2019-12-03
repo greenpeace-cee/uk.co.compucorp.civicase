@@ -35,7 +35,7 @@
    *  event: document#event
    *  role: Role,
    *  showContactSelectionError: (message: string) => void
-   * }} contactPromptResult
+   * }} ContactPromptResult
    */
 
   /**
@@ -208,9 +208,6 @@
      */
     $scope.replaceRoleOrClient = function (role) {
       var isReplacingClient = !role.relationship_type_id;
-      var activityTypeId = isReplacingClient
-        ? 'Reassigned Case'
-        : 'Assign Case Role';
 
       promptForContact(
         {
@@ -218,45 +215,7 @@
           showDescriptionField: !isReplacingClient,
           role: role
         },
-        function (contactPromptResult) {
-          if (checkContactIsClient(contactPromptResult.contact.id)) {
-            contactPromptResult.event.preventDefault();
-            contactPromptResult
-              .showContactSelectionError(CONTACT_CANT_HAVE_ROLE_MESSAGE);
-
-            return;
-          }
-
-          var activitySubject = ts('%1 replaced %2 as %3', {
-            1: contactPromptResult.contact.extra.display_name,
-            2: role.display_name,
-            3: role.role
-          });
-          var apiCalls = [
-            unassignRoleCall(role),
-            getCreateRoleActivityApiCall({
-              activity_type_id: activityTypeId,
-              subject: activitySubject,
-              target_contact_id: [
-                contactPromptResult.contact.id,
-                role.contact_id
-              ]
-            })
-          ];
-
-          if (isReplacingClient) {
-            apiCalls.push(['CaseContact', 'create', {
-              case_id: item.id,
-              contact_id: contactPromptResult.contact.id
-            }]);
-          } else {
-            apiCalls = apiCalls.concat(
-              getCreateCaseRoleApiCalls(contactPromptResult)
-            );
-          }
-
-          $scope.refresh(apiCalls);
-        }
+        handleReplaceRoleOrClient
       );
     };
 
@@ -299,7 +258,7 @@
      * Returns all the calls needed to create relationships between the selected contact and all the
      * clients related to the case.
      *
-     * @param {contactPromptResult} contactPromptResult the contact returned by the confirm dialog
+     * @param {ContactPromptResult} contactPromptResult the contact returned by the confirm dialog
      * @returns {Array[]} a list of api calls.
      */
     function getCreateCaseRoleApiCalls (contactPromptResult) {
@@ -320,8 +279,8 @@
     }
 
     /**
-     * Promps for a client contact and assigns it to the case. This event is also recorded as an activity related
-     * to the case.
+     * Prompts for a client contact and assigns it to the case.
+     * Passes the selected client to the assign client handler.
      */
     function assignClient () {
       var role = { role: ts('Client') };
@@ -332,24 +291,7 @@
           showDescriptionField: false,
           role: role
         },
-        function (contactPromptResult) {
-          var activitySubject = ts('%1 added as Client', {
-            1: contactPromptResult.contact.extra.display_name
-          });
-          var apiCalls = [
-            getCreateRoleActivityApiCall({
-              activity_type_id: 'Add Client To Case',
-              subject: activitySubject,
-              target_contact_id: contactPromptResult.contact.id
-            }),
-            ['CaseContact', 'create', {
-              case_id: item.id,
-              contact_id: contactPromptResult.contact.id
-            }]
-          ];
-
-          $scope.refresh(apiCalls);
-        }
+        handleAssignClient
       );
     }
 
@@ -367,31 +309,8 @@
           showDescriptionField: true,
           role: role
         },
-        function (contactPromptResult) {
-          if (checkContactIsClient(contactPromptResult.contact.id)) {
-            contactPromptResult.event.preventDefault();
-            contactPromptResult
-              .showContactSelectionError(CONTACT_CANT_HAVE_ROLE_MESSAGE);
-
-            return;
-          }
-
-          var activitySubject = ts('%1 added as %2', {
-            1: contactPromptResult.contact.extra.display_name,
-            2: role.role
-          });
-          var apiCalls = [
-            getCreateRoleActivityApiCall({
-              activity_type_id: 'Assign Case Role',
-              subject: activitySubject,
-              target_contact_id: contactPromptResult.contact.id
-            })
-          ].concat(
-            getCreateCaseRoleApiCalls(contactPromptResult)
-          );
-
-          $scope.refresh(apiCalls);
-        });
+        handleAssignRole
+      );
     }
 
     /**
@@ -407,6 +326,115 @@
     }
 
     /**
+     * Sends the API calls necessary to assign the given client contact to the
+     * current case. This event is also recorded as an activity related
+     * to the case.
+     *
+     * @param {ContactPromptResult} contactPromptResult the contact returned by the confirm dialog
+     */
+    function handleAssignClient (contactPromptResult) {
+      var activitySubject = ts('%1 added as Client', {
+        1: contactPromptResult.contact.extra.display_name
+      });
+      var apiCalls = [
+        getCreateRoleActivityApiCall({
+          activity_type_id: 'Add Client To Case',
+          subject: activitySubject,
+          target_contact_id: contactPromptResult.contact.id
+        }),
+        ['CaseContact', 'create', {
+          case_id: item.id,
+          contact_id: contactPromptResult.contact.id
+        }]
+      ];
+
+      $scope.refresh(apiCalls);
+    }
+
+    /**
+     * Sends the api calls necessary to assign the given contact as a case role. This
+     * event is also recorded as an activity.
+     *
+     * @param {ContactPromptResult} contactPromptResult the contact returned by the confirm dialog
+     */
+    function handleAssignRole (contactPromptResult) {
+      if (checkContactIsClient(contactPromptResult.contact.id)) {
+        contactPromptResult.event.preventDefault();
+        contactPromptResult
+          .showContactSelectionError(CONTACT_CANT_HAVE_ROLE_MESSAGE);
+
+        return;
+      }
+
+      var activitySubject = ts('%1 added as %2', {
+        1: contactPromptResult.contact.extra.display_name,
+        2: contactPromptResult.role.role
+      });
+      var apiCalls = [
+        getCreateRoleActivityApiCall({
+          activity_type_id: 'Assign Case Role',
+          subject: activitySubject,
+          target_contact_id: contactPromptResult.contact.id
+        })
+      ].concat(
+        getCreateCaseRoleApiCalls(contactPromptResult)
+      );
+
+      $scope.refresh(apiCalls);
+    }
+
+    /**
+     * Sends the api calls necessary to replace the given case role or case client. This
+     * event is also recorded as activity.
+     *
+     * @param {ContactPromptResult} contactPromptResult the contact returned by the confirm dialog
+     */
+    function handleReplaceRoleOrClient (contactPromptResult) {
+      var isReplacingClient = !contactPromptResult.role.relationship_type_id;
+      var activityTypeId = isReplacingClient
+        ? 'Reassigned Case'
+        : 'Assign Case Role';
+
+      if (checkContactIsClient(contactPromptResult.contact.id)) {
+        contactPromptResult.event.preventDefault();
+        contactPromptResult
+          .showContactSelectionError(CONTACT_CANT_HAVE_ROLE_MESSAGE);
+
+        return;
+      }
+
+      var activitySubject = ts('%1 replaced %2 as %3', {
+        1: contactPromptResult.contact.extra.display_name,
+        2: contactPromptResult.role.display_name,
+        3: contactPromptResult.role.role
+      });
+      var apiCalls = [
+        unassignRoleCall(contactPromptResult.role),
+        getCreateRoleActivityApiCall({
+          activity_type_id: activityTypeId,
+          subject: activitySubject,
+          target_contact_id: [
+            contactPromptResult.contact.id,
+            contactPromptResult.role.contact_id
+          ]
+        })
+      ];
+
+      if (isReplacingClient) {
+        apiCalls.push(['CaseContact', 'create', {
+          case_id: item.id,
+          contact_id: contactPromptResult.contact.id
+        }]);
+      } else {
+        apiCalls = apiCalls.concat(
+          getCreateCaseRoleApiCalls(contactPromptResult)
+        );
+      }
+
+      $scope.refresh(apiCalls);
+    }
+
+    /**
      * Displays a confirmation dialog used to select a contact. An optional description input can also be
 included in the confirmation dialog.
      *
@@ -416,7 +444,7 @@ included in the confirmation dialog.
      *   title: string
      * }} ContactPromptOptions
      * @param {ContactPromptOptions} options the prompt options
-     * @param {(contactPromptResult: contactPromptResult) => void} onConfirmCallback a callback executed after confirming
+     * @param {(contactPromptResult: ContactPromptResult) => void} onConfirmCallback a callback executed after confirming
      *   the dialog.
      */
     function promptForContact (options, onConfirmCallback) {
