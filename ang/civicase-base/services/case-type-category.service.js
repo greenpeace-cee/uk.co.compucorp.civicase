@@ -14,14 +14,14 @@
     };
 
     /**
-     * Find case type category by value
+     * Find case type category by name
      *
-     * @param {string} name case type category name
+     * @param {string} caseTypeCategoryName case type category name
      * @returns {object} case type category object
      */
-    this.findByName = function (name) {
+    this.findByName = function (caseTypeCategoryName) {
       return _.find(allCaseTypeCategories, function (category) {
-        return category.name === 'awards';
+        return category.name === caseTypeCategoryName;
       });
     };
   }
