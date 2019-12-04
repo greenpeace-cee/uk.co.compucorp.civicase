@@ -11,6 +11,7 @@
 
     this.$get = $get;
     this.getAll = getAll;
+    this.getByCategory = getByCategory;
     this.getTitlesForNames = getTitlesForNames;
 
     /**
@@ -23,6 +24,7 @@
       return {
         getAll: getAll,
         getButtonsForCaseType: getButtonsForCaseType,
+        getByCategory: getByCategory,
         getTitlesForNames: getTitlesForNames
       };
 
@@ -34,7 +36,7 @@
        */
       function getButtonsForCaseType (caseTypeName) {
         return DashboardCaseTypeButtons[caseTypeName] || [];
-      };
+      }
     }
 
     /**
@@ -42,6 +44,18 @@
      */
     function getAll () {
       return caseTypes;
+    }
+
+    /**
+     * Returns only the case types belonging to the given category.
+     *
+     * @param {number} categoryValue the case type category value.
+     * @returns {object[]} a list of case types.
+     */
+    function getByCategory (categoryValue) {
+      return _.filter(caseTypes, function (caseType) {
+        return caseType.case_type_category === categoryValue;
+      });
     }
 
     /**
