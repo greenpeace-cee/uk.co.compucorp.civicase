@@ -516,17 +516,18 @@ included in the confirmation dialog.
        */
       function showContactSelectionError (message) {
         var contactSelector = $('[name=caseRoleSelector]', dialogElement).select2('container');
-        var hasError = contactSelector.find('.contact-selection-error').length > 0;
+        var hasError = dialogElement.find('.contact-selection-error').length > 0;
 
         if (hasError) {
           return;
         }
 
         contactSelector.addClass('crm-error');
-        $('<p class="contact-selection-error"></p>')
+        $('<div class="contact-selection-error crm-error crm-error-label"></div>')
           .text(message)
           .prepend('<i class="fa fa-times"></i>')
-          .appendTo(contactSelector);
+          .css('max-width', contactSelector.width())
+          .insertAfter(contactSelector);
       }
     }
 
