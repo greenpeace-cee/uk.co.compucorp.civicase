@@ -23,7 +23,9 @@
    * @param {object} $rootScope $rootScope
    * @param {object} $scope $scope
    * @param {object} $document $document
+   * @param {object} $injector service injector
    * @param {object} BulkActions bulk actions service
+   * @param {object[]} CaseTabs list of case tabs
    * @param {object} crmApi crm api service
    * @param {object} formatActivity format activity service
    * @param {object} formatCase format case service
@@ -388,7 +390,8 @@
      * Injects the caseTab service as a string pattern
      * from the name.
      *
-     * @param {string} name
+     * @param {string} name the name of the case tab service.
+     * @returns {object|null} the case tab service.
      */
     function getCaseTabService (name) {
       try {

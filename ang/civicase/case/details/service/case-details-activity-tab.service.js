@@ -4,19 +4,21 @@
   module.service('activitiesCaseTab', ActivitiesCaseTab);
 
   /**
-   * @param $location
-   * @param crmApi
+   * Activities Case Tab service.
+   *
+   * @param {object} $location the location service.
+   * @param {Function} crmApi the CRM API service.
    */
   function ActivitiesCaseTab ($location, crmApi) {
     /**
-     * Returns placeholder HTMl template url.
+     * @returns {string} Returns placeholder HTMl template url.
      */
     this.getPlaceholderUrl = function () {
       return '~/civicase/case/details/directives/placeholder/activity.html';
     };
 
     /**
-     * Returns tab content HTMl template url.
+     * @returns {string} Returns tab content HTMl template url.
      */
     this.activeTabContentUrl = function () {
       return '~/civicase/case/details/directives/tab-content/activity.html';

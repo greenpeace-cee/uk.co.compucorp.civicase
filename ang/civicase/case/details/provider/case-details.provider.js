@@ -4,7 +4,7 @@
   module.provider('CaseTabs', CaseTabsProvider);
 
   /**
-   *
+   * Case Tabs provider.
    */
   function CaseTabsProvider () {
     var caseTabsConfig = [
@@ -17,6 +17,8 @@
     /**
      * Getter for caseTabs Provider.
      * Sorts the caseTabsConfig before returning.
+     *
+     * @returns {object[]} a list of case tabs sorted by weight.
      */
     this.$get = function () {
       return Object.keys(caseTabsConfig).sort(function (a, b) {
@@ -28,10 +30,9 @@
 
     /**
      * Setter for caseTabsConfig.
-Adds a new caseTab config to the list of configs.
+     * Adds a new caseTab config to the list of configs.
      *
-     * @param tabConfig
-     * @param {object} case tab config.
+     * @param {object[]} tabConfig the list of tabs to add.
      */
     this.addTabs = function (tabConfig) {
       caseTabsConfig = caseTabsConfig.concat(tabConfig);
