@@ -1,12 +1,12 @@
 (function (angular, $, _) {
   var module = angular.module('civicase');
 
-  module.provider('CaseTabs', CaseTabsProvider);
+  module.provider('CaseDetailsTabs', CaseDetailsTabs);
 
   /**
    * Case Tabs provider.
    */
-  function CaseTabsProvider () {
+  function CaseDetailsTabs () {
     var caseTabsConfig = [
       { name: 'summary', label: ts('Summary'), weight: 1 },
       { name: 'activities', label: ts('Activities'), weight: 2 },

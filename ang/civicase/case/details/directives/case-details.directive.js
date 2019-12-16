@@ -25,7 +25,7 @@
    * @param {object} $document $document
    * @param {object} $injector service injector
    * @param {object} BulkActions bulk actions service
-   * @param {object[]} CaseTabs list of case tabs
+   * @param {object[]} CaseDetailsTabs list of case tabs
    * @param {object} crmApi crm api service
    * @param {object} formatActivity format activity service
    * @param {object} formatCase format case service
@@ -41,7 +41,7 @@
    * @param {object} CaseType case type service
    */
   function civicaseCaseDetailsController ($location, $rootScope, $scope,
-    $document, $injector, BulkActions, CaseTabs, crmApi, formatActivity, formatCase,
+    $document, $injector, BulkActions, CaseDetailsTabs, crmApi, formatActivity, formatCase,
     getActivityFeedUrl, getCaseQueryParams, $route, $timeout,
     CasesUtils, PrintMergeCaseAction, ts, ActivityType, CaseStatus, CaseType) {
     // The ts() and hs() functions help load strings for this module.
@@ -58,7 +58,7 @@
     $scope.bulkAllowed = BulkActions.isAllowed();
     $scope.caseTypesLength = _.size(caseTypes);
     $scope.CRM = CRM;
-    $scope.tabs = CaseTabs;
+    $scope.tabs = CaseDetailsTabs;
 
     (function init () {
       $scope.$watch('activeTab', activeTabWatcher);
