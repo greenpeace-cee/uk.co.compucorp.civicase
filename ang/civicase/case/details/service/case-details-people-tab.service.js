@@ -1,7 +1,7 @@
 (function (angular, $, _) {
   var module = angular.module('civicase');
 
-  module.service('peopleCaseTab', PeopleCaseTab);
+  module.service('PeopleCaseTab', PeopleCaseTab);
 
   /**
    * People Case Tab service.

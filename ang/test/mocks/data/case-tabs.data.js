@@ -4,22 +4,22 @@
 
   CaseTabs = [
     {
-      name: 'summary',
+      name: 'Summary',
       label: 'Summary',
       weight: 1
     },
     {
-      name: 'activities',
+      name: 'Activities',
       label: 'Activities',
       weight: 2
     },
     {
-      name: 'people',
+      name: 'People',
       label: 'People',
       weight: 3
     },
     {
-      name: 'files',
+      name: 'Files',
       label: 'Files',
       weight: 4
     }

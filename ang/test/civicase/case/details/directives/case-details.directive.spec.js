@@ -59,7 +59,7 @@
     describe('activeTab watcher', function () {
       beforeEach(function () {
         compileDirective();
-        element.isolateScope().activeTab = 'people';
+        element.isolateScope().activeTab = 'People';
         element.isolateScope().$digest();
       });
 

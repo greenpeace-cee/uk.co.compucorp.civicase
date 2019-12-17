@@ -1,7 +1,7 @@
 (function (angular, $, _) {
   var module = angular.module('civicase');
 
-  module.service('filesCaseTab', FilesCaseTab);
+  module.service('FilesCaseTab', FilesCaseTab);
 
   /**
    * Files Case Tab service.
