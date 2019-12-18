@@ -1,8 +1,6 @@
-(function (angular, CRM) {
-  var module = angular.module('civicase.data');
-  var CaseTabs;
-
-  CaseTabs = [
+((angular, CRM) => {
+  const module = angular.module('civicase.data');
+  const CaseTabs = [
     {
       name: 'Summary',
       label: 'Summary',

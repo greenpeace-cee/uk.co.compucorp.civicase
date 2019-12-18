@@ -301,7 +301,7 @@
      * Mocks a directive
      * TODO: Have a more generic usage - Maybe create a service/factory
      *
-     * @param {string} directiveName
+     * @param {string} directiveName the name of the directive.
      */
     function killDirective (directiveName) {
       angular.mock.module(function ($compileProvider) {

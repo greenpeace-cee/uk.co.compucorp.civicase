@@ -1,18 +1,20 @@
 /* eslint-env jasmine */
-(function (_) {
-  describe('CaseDetailsTabs', function () {
-    var CaseDetailsTabs, $rootScope, $controller, $scope, CaseTabsMockData, CaseDetailsTabsProvider;
-    var CaseTab = [{
-      name: 'test',
-      label: 'Test Label',
-      weight: 5
-    }];
+((_) => {
+  describe('CaseDetailsTabs', () => {
+    let CaseDetailsTabs, $rootScope, $controller, $scope, CaseTabsMockData, CaseDetailsTabsProvider;
+    const newTabsToBeAdded = [
+      {
+        name: 'test',
+        label: 'Test Label',
+        weight: 5
+      }
+    ];
 
-    beforeEach(module('civicase', 'civicase.data', function (_CaseDetailsTabsProvider_) {
+    beforeEach(module('civicase', 'civicase.data', (_CaseDetailsTabsProvider_) => {
       CaseDetailsTabsProvider = _CaseDetailsTabsProvider_;
     }));
 
-    beforeEach(inject(function (_$rootScope_, _$controller_, _CaseDetailsTabs_, _CaseTabsMockData_) {
+    beforeEach(inject((_$rootScope_, _$controller_, _CaseDetailsTabs_, _CaseTabsMockData_) => {
       $controller = _$controller_;
       $rootScope = _$rootScope_;
       $scope = $rootScope.$new();
@@ -20,34 +22,29 @@
       CaseTabsMockData = _.cloneDeep(_CaseTabsMockData_);
     }));
 
-    describe('Case tabs', function () {
-      beforeEach(function () {
+    describe('Case tabs', () => {
+      beforeEach(() => {
         initController();
       });
 
-      it('should gets tabs object', function () {
+      it('should gets tabs object', () => {
         expect(CaseDetailsTabs).toEqual(CaseTabsMockData);
       });
     });
 
-    describe('Case tabs add function', function () {
-      beforeEach(function () {
+    describe('when a new case tab is added', () => {
+      let expectedCaseTabs;
+
+      beforeEach(() => {
+        expectedCaseTabs = CaseTabsMockData.concat(newTabsToBeAdded);
+        expectedCaseTabs = _.sortBy(expectedCaseTabs, 'weight');
+
         initController();
-        CaseDetailsTabsProvider.addTabs(CaseTab);
-
-        // Add case tab to mock data
-        CaseTabsMockData = CaseTabsMockData.concat(CaseTab);
-
-        // And filter
-        CaseTabsMockData = Object.keys(CaseTabsMockData).sort(function (a, b) {
-          return CaseTabsMockData[a].weight - CaseTabsMockData[b].weight;
-        }).map(function (key) {
-          return CaseTabsMockData[key];
-        });
+        CaseDetailsTabsProvider.addTabs(newTabsToBeAdded);
       });
 
-      it('should add new Object to the list', function () {
-        expect(CaseDetailsTabsProvider.$get()).toEqual(CaseTabsMockData);
+      it('displays the newly added tab sorted by weight', () => {
+        expect(CaseDetailsTabsProvider.$get()).toEqual(expectedCaseTabs);
       });
     });
 
