@@ -23,7 +23,6 @@
    * @param {object} $rootScope $rootScope
    * @param {object} $scope $scope
    * @param {object} $document $document
-   * @param {object} $injector service injector
    * @param {object} BulkActions bulk actions service
    * @param {object[]} CaseDetailsTabs list of case tabs
    * @param {object} crmApi crm api service
@@ -41,7 +40,7 @@
    * @param {object} CaseType case type service
    */
   function civicaseCaseDetailsController ($location, $rootScope, $scope,
-    $document, $injector, BulkActions, CaseDetailsTabs, crmApi, formatActivity, formatCase,
+    $document, BulkActions, CaseDetailsTabs, crmApi, formatActivity, formatCase,
     getActivityFeedUrl, getCaseQueryParams, $route, $timeout,
     CasesUtils, PrintMergeCaseAction, ts, ActivityType, CaseStatus, CaseType) {
     // The ts() and hs() functions help load strings for this module.
@@ -387,31 +386,17 @@
     }
 
     /**
-     * Injects the caseTab service as a string pattern
-     * from the name.
-     *
-     * @param {string} name the name of the case tab service.
-     * @returns {object|null} the case tab service.
-     */
-    function getCaseTabService (name) {
-      try {
-        return $injector.get(name + 'CaseTab');
-      } catch (e) {
-        return null;
-      }
-    }
-
-    /**
      * Watches for activeTab variable and update the active tab
      * placeholder and content template.
      */
     function activeTabWatcher () {
-      var tab = $scope.activeTab;
-      var service = getCaseTabService(tab);
+      var activeCaseTab = _.find(CaseDetailsTabs, {
+        name: $scope.activeTab
+      });
 
-      if (service) {
-        $scope.activeTabPlaceholderUrl = service.getPlaceholderUrl();
-        $scope.activeTabContentUrl = service.activeTabContentUrl();
+      if (activeCaseTab && activeCaseTab.service) {
+        $scope.activeTabPlaceholderUrl = activeCaseTab.service.getPlaceholderUrl();
+        $scope.activeTabContentUrl = activeCaseTab.service.activeTabContentUrl();
       }
     }
 

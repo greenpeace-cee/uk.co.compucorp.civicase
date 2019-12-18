@@ -1,67 +1,105 @@
 /* eslint-env jasmine */
-((_) => {
+((_, angular) => {
   describe('CaseDetailsTabs', () => {
-    let CaseDetailsTabs, $rootScope, $controller, $scope, CaseTabsMockData, CaseDetailsTabsProvider;
-    const newTabsToBeAdded = [
-      {
-        name: 'test',
-        label: 'Test Label',
-        weight: 5
-      }
-    ];
+    let $injector, CaseDetailsTabs, CaseTabsMockData, CaseDetailsTabsProvider;
+    const testTabToBeAdded = {
+      name: 'Test',
+      label: 'Test Label',
+      weight: 5
+    };
 
-    beforeEach(module('civicase', 'civicase.data', (_CaseDetailsTabsProvider_) => {
-      CaseDetailsTabsProvider = _CaseDetailsTabsProvider_;
-    }));
+    beforeEach(() => {
+      initSpyModule();
+      module('civicase', 'civicase.data', 'civicase.spy');
 
-    beforeEach(inject((_$rootScope_, _$controller_, _CaseDetailsTabs_, _CaseTabsMockData_) => {
-      $controller = _$controller_;
-      $rootScope = _$rootScope_;
-      $scope = $rootScope.$new();
-      CaseDetailsTabs = _CaseDetailsTabs_;
-      CaseTabsMockData = _.cloneDeep(_CaseTabsMockData_);
-    }));
-
-    describe('Case tabs', () => {
-      beforeEach(() => {
-        initController();
-      });
-
-      it('should gets tabs object', () => {
-        expect(CaseDetailsTabs).toEqual(CaseTabsMockData);
-      });
+      // initialises the modules:
+      inject();
     });
 
-    describe('when a new case tab is added', () => {
+    describe('when loading the case tabs', () => {
       let expectedCaseTabs;
 
       beforeEach(() => {
-        expectedCaseTabs = CaseTabsMockData.concat(newTabsToBeAdded);
-        expectedCaseTabs = _.sortBy(expectedCaseTabs, 'weight');
+        injectDependencies();
 
-        initController();
-        CaseDetailsTabsProvider.addTabs(newTabsToBeAdded);
+        expectedCaseTabs = getExpectedCaseTabs();
+      });
+
+      it('it should have case details tabs sorted by weight and including their services', () => {
+        expect(CaseDetailsTabs).toEqual(expectedCaseTabs);
+      });
+    });
+
+    describe('when adding new case tabs', () => {
+      let expectedCaseTabs;
+
+      beforeEach(() => {
+        CaseDetailsTabsProvider.addTabs([
+          testTabToBeAdded
+        ]);
+
+        injectDependencies();
+
+        expectedCaseTabs = getExpectedCaseTabs({
+          extraCaseTabs: testTabToBeAdded
+        });
       });
 
       it('displays the newly added tab sorted by weight', () => {
-        expect(CaseDetailsTabsProvider.$get()).toEqual(expectedCaseTabs);
+        expect(CaseDetailsTabs).toEqual(expectedCaseTabs);
       });
     });
 
     /**
-     * Initializes the case details controller.
+     * Returns the case tabs as expected by the spec:
+     *  - sorted by weight
+     *  - including their service
      *
-     * @param {object} caseItem a case item to pass to the controller. Defaults to
-     * a case from the mock data.
+     * The function also supports adding extra case tabs to the list.
+     *
+     * @param {object} options a list of options.
+     * @property {object[]} extraCaseTabs a list of case tabs to add.
+     * @returns {object[]} a list of expected case tabs.
      */
-    function initController (caseItem) {
-      $scope = $rootScope.$new();
+    function getExpectedCaseTabs (options = { extraCaseTabs: [] }) {
+      const expectedCaseTabs = CaseTabsMockData.concat(options.extraCaseTabs);
 
-      $controller('civicaseCaseDetailsController', {
-        $scope: $scope
+      return _.chain(expectedCaseTabs)
+        .sortBy('weight')
+        .map((caseTab) => {
+          const caseTabService = $injector.get(`${caseTab.name}CaseTab`);
+
+          return _.extend({}, caseTab, {
+            service: caseTabService
+          });
+        })
+        .value();
+    }
+
+    /**
+     * Initialises a spy module by hoisting the case details tabs provider
+     * and adding a mock TestCaseTab service.
+     */
+    function initSpyModule () {
+      angular.module('civicase.spy', ['civicase'])
+        .config((_CaseDetailsTabsProvider_) => {
+          CaseDetailsTabsProvider = _CaseDetailsTabsProvider_;
+        })
+        .service('TestCaseTab', function () {
+          this.getPlaceholderUrl = _.noop;
+          this.activeTabContentUrl = _.noop;
+        });
+    }
+
+    /**
+     * Injects and hoists the dependencies needed by this spec.
+     */
+    function injectDependencies () {
+      inject((_$injector_, _CaseDetailsTabs_, _CaseTabsMockData_) => {
+        $injector = _$injector_;
+        CaseDetailsTabs = _CaseDetailsTabs_;
+        CaseTabsMockData = _.cloneDeep(_CaseTabsMockData_);
       });
-
-      $scope.$digest();
     }
   });
-})(CRM._);
+})(CRM._, angular);

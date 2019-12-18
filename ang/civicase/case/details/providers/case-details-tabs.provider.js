@@ -14,19 +14,53 @@
       { name: 'Files', label: ts('Files'), weight: 4 }
     ];
 
+    this.$get = $get;
+    this.addTabs = addTabs;
+
     /**
-     * Getter for caseTabs Provider.
-     * Sorts the caseTabsConfig before returning.
+     * A list of case tabs sorted by weight and including their case tab
+     * services.
      *
+     * @param {object} $injector the injector service reference.
      * @returns {object[]} a list of case tabs sorted by weight.
      */
-    this.$get = function () {
-      return Object.keys(caseTabsConfig).sort(function (a, b) {
-        return caseTabsConfig[a].weight - caseTabsConfig[b].weight;
-      }).map(function (key) {
-        return caseTabsConfig[key];
-      });
-    };
+    function $get ($injector) {
+      var sortedCaseTabsConfig = _.sortBy(caseTabsConfig, 'weight');
+      sortedCaseTabsConfig = getCaseTabsWithServices(sortedCaseTabsConfig);
+
+      return sortedCaseTabsConfig;
+
+      /**
+       * Adds the case tab service to each given case tab.
+       *
+       * @param {object[]} caseTabs a list of case tabs.
+       * @returns {object[]} a list of case tabs including their services.
+       */
+      function getCaseTabsWithServices (caseTabs) {
+        return caseTabs.map(function (caseTab) {
+          var caseTabService = getCaseTabServiceByName(caseTab.name);
+
+          return _.extend({}, caseTab, {
+            service: caseTabService
+          });
+        });
+      }
+
+      /**
+       * Injects the case tab service using the case tab name and the
+       * "CaseTab" suffix.
+       *
+       * @param {string} caseTabName the name of the case tab.
+       * @returns {object|null} the case tab service.
+       */
+      function getCaseTabServiceByName (caseTabName) {
+        try {
+          return $injector.get(caseTabName + 'CaseTab');
+        } catch (error) {
+          return null;
+        }
+      }
+    }
 
     /**
      * Setter for caseTabsConfig.
@@ -34,8 +68,8 @@
      *
      * @param {object[]} tabConfig the list of tabs to add.
      */
-    this.addTabs = function (tabConfig) {
+    function addTabs (tabConfig) {
       caseTabsConfig = caseTabsConfig.concat(tabConfig);
-    };
+    }
   }
 })(angular, CRM.$, CRM._);
