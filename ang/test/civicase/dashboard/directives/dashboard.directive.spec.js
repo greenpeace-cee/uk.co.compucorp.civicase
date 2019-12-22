@@ -2,19 +2,28 @@
 
 (function (_) {
   describe('civicaseDashboardController', function () {
-    var $controller, $rootScope, $scope;
+    var $controller, $rootScope, $scope, DashboardActionButtons;
 
     beforeEach(module('civicase', 'civicase.data'));
 
-    beforeEach(inject(function (_$controller_, _$rootScope_) {
+    beforeEach(inject(function (_$controller_, _$rootScope_, _DashboardActionButtons_) {
       $controller = _$controller_;
       $rootScope = _$rootScope_;
+      DashboardActionButtons = _DashboardActionButtons_;
 
       $scope = $rootScope.$new();
       $scope.$bindToRoute = jasmine.createSpy('$bindToRoute');
-
-      spyOn(CRM, 'checkPerm');
     }));
+
+    describe('on init', () => {
+      beforeEach(() => {
+        initController();
+      });
+
+      it('stores the dashboard action buttons', () => {
+        expect($scope.actionButtons).toBe(DashboardActionButtons);
+      });
+    });
 
     describe('filter', function () {
       describe('when user has permission to view all cases', function () {
@@ -25,9 +34,9 @@
 
         it('shows the `All Cases` filter option', function () {
           expect($scope.caseRelationshipOptions).toEqual([
-            { 'text': 'My cases', 'id': 'is_case_manager' },
-            { 'text': 'Cases I am involved in', 'id': 'is_involved' },
-            { 'text': 'All Cases', 'id': 'all' }
+            { text: 'My cases', id: 'is_case_manager' },
+            { text: 'Cases I am involved in', id: 'is_involved' },
+            { text: 'All Cases', id: 'all' }
           ]);
         });
       });
@@ -40,8 +49,8 @@
 
         it('does not show the `All Cases` filter option', function () {
           expect($scope.caseRelationshipOptions).toEqual([
-            { 'text': 'My cases', 'id': 'is_case_manager' },
-            { 'text': 'Cases I am involved in', 'id': 'is_involved' }
+            { text: 'My cases', id: 'is_case_manager' },
+            { text: 'Cases I am involved in', id: 'is_involved' }
           ]);
         });
       });
@@ -71,7 +80,7 @@
 
         it('filters the cases and activties where the user is involved', function () {
           expect($scope.activityFilters.case_filter).toEqual(jasmine.objectContaining({
-            contact_involved: {'IN': [CRM.config.user_contact_id]}
+            contact_involved: { IN: [CRM.config.user_contact_id] }
           }));
         });
       });

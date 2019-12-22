@@ -11,12 +11,25 @@
 
   module.controller('civicaseDashboardController', civicaseDashboardController);
 
-  function civicaseDashboardController ($scope, crmApi, formatActivity, $timeout, ts) {
+  /**
+   * Civicase Dashboard Controller.
+   *
+   * @param {object} $scope controller's scope.
+   * @param {Function} crmApi CRM API service reference.
+   * @param {object[]} DashboardActionButtons Dashboard action buttons list.
+   * @param {string} defaultCaseCategory default case type category setting value.
+   * @param {Function} formatActivity Format Activity service reference.
+   * @param {Function} $timeout timeout service reference.
+   * @param {Function} ts translate service reference.
+   */
+  function civicaseDashboardController ($scope, crmApi, DashboardActionButtons, defaultCaseCategory,
+    formatActivity, $timeout, ts) {
     $scope.checkPerm = CRM.checkPerm;
+    $scope.actionButtons = DashboardActionButtons;
     $scope.url = CRM.url;
     $scope.filters = {};
     $scope.activityFilters = {
-      case_filter: {'case_type_id.is_active': 1, contact_is_deleted: 0}
+      case_filter: { 'case_type_id.is_active': 1, contact_is_deleted: 0 }
     };
     $scope.newCaseWebformUrl = CRM.civicase.newCaseWebformUrl;
 
@@ -25,7 +38,7 @@
       initWatchers();
       prepareCaseFilterOption();
       $scope.caseTypeCategoryName = getCaseTypeCategoryName();
-      $scope.defaultCaseCategory = CRM.civicase.defaultCaseCategory;
+      $scope.defaultCaseCategory = defaultCaseCategory;
       $scope.ts = ts;
     }());
 
@@ -40,7 +53,7 @@
       if ($scope.myCasesOnly) {
         cf.case_manager = CRM.config.user_contact_id;
       }
-      return '#/case/list?' + $.param({cf: JSON.stringify(cf)});
+      return '#/case/list?' + $.param({ cf: JSON.stringify(cf) });
     };
 
     /**
@@ -54,15 +67,17 @@
 
     /**
      * Gets the case type category label.
+     *
+     * @returns {string} the case type category label.
      */
     function getCaseTypeCategoryName () {
       return $scope.activityFilters.case_filter['case_type_id.case_type_category'];
     }
 
     /**
-     * Watcher for caseRelationshipType
+     * Watcher for caseRelationshipType.
      *
-     * @param {String} newValue
+     * @param {string} newValue the new relationship value.
      */
     function caseRelationshipTypeWatcher (newValue) {
       newValue === 'is_case_manager'
@@ -70,7 +85,7 @@
         : delete ($scope.activityFilters.case_filter.case_manager);
 
       newValue === 'is_involved'
-        ? $scope.activityFilters.case_filter.contact_involved = {'IN': [CRM.config.user_contact_id]}
+        ? $scope.activityFilters.case_filter.contact_involved = { IN: [CRM.config.user_contact_id] }
         : delete ($scope.activityFilters.case_filter.contact_involved);
     }
 
@@ -86,12 +101,12 @@
      */
     function prepareCaseFilterOption () {
       var options = [
-        {'text': ts('My cases'), 'id': 'is_case_manager'},
-        {'text': ts('Cases I am involved in'), 'id': 'is_involved'}
+        { text: ts('My cases'), id: 'is_case_manager' },
+        { text: ts('Cases I am involved in'), id: 'is_involved' }
       ];
 
       if (CRM.checkPerm('access all cases and activities')) {
-        options.push({'text': ts('All Cases'), 'id': 'all'});
+        options.push({ text: ts('All Cases'), id: 'all' });
       }
 
       $scope.caseRelationshipOptions = options;

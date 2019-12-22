@@ -13,7 +13,7 @@
 <tr class="crm-case-form-block-webformUrl">
   <td class="label">{$form.civicaseWebformUrl.label}</td>
   <td>{$form.civicaseWebformUrl.html}<br />
-    <span class="description">{ts}A Webform url e.g node/233{/ts}</span>
+    <span class="description">{ts}A Webform url e.g /node/233{/ts}</span>
   </td>
 </tr>
 

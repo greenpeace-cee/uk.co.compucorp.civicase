@@ -10,6 +10,7 @@
 
       killDirective('civicaseActivitiesCalendar');
       killDirective('civicaseCaseActions');
+      killDirective('civicaseCaseDetailsPeopleTab');
     }));
 
     beforeEach(inject(function ($q) {
@@ -52,6 +53,22 @@
 
       it('complies the directive', function () {
         expect(element.html()).toContain('civicase__case-header');
+      });
+    });
+
+    describe('activeTab watcher', function () {
+      beforeEach(function () {
+        compileDirective();
+        element.isolateScope().activeTab = 'People';
+        element.isolateScope().$digest();
+      });
+
+      it('should return active tab placeholder url', function () {
+        expect(element.isolateScope().activeTabPlaceholderUrl).toEqual('~/civicase/case/details/directives/placeholder/people.html');
+      });
+
+      it('should return active tab content url', function () {
+        expect(element.isolateScope().activeTabContentUrl).toEqual('~/civicase/case/details/directives/tab-content/people.html');
       });
     });
 
@@ -291,7 +308,7 @@
      * Mocks a directive
      * TODO: Have a more generic usage - Maybe create a service/factory
      *
-     * @param {string} directiveName name of the directive
+     * @param {string} directiveName the name of the directive.
      */
     function killDirective (directiveName) {
       angular.mock.module(function ($compileProvider) {

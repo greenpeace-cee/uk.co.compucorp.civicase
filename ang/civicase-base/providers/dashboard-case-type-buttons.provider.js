@@ -4,13 +4,14 @@
   module.provider('DashboardCaseTypeButtons', function () {
     var dashboardCaseTypeButtons = {};
 
-    this.addButtons = addButtons;
     this.$get = $get;
+    this.addButtons = addButtons;
 
     /**
-     * Provides the case types.
+     * Provides the case type buttons.
      *
-     * @returns {object[]} the list of case types.
+     * @returns {object} a map of case type names and the buttons associated
+     *   to them.
      */
     function $get () {
       return dashboardCaseTypeButtons;
@@ -21,6 +22,7 @@
      * in the list of case types on the dashboard.
      *
      * @typedef {{
+     *  icon: string,
      *  url: string
      * }} ButtonConfig
      * @param {string} caseTypeName the name for the case type the buttons belong to.

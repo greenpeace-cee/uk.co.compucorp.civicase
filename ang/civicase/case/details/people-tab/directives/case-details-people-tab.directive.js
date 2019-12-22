@@ -19,12 +19,14 @@
    * ViewPeople Controller
    *
    * @param {object} $scope $scope
+   * @param {object} allowMultipleCaseClients allow multiple clients configuration value
    * @param {object} crmApi crmApi
    * @param {object} DateHelper DateHelper
    * @param {object} ts ts
    * @param {object} RelationshipType RelationshipType
    */
-  function civicaseViewPeopleController ($scope, crmApi, DateHelper, ts, RelationshipType) {
+  function civicaseViewPeopleController ($scope, allowMultipleCaseClients, crmApi,
+    DateHelper, ts, RelationshipType) {
     // The ts() and hs() functions help load strings for this module.
     var clients = _.indexBy($scope.item.client, 'contact_id');
     var item = $scope.item;
@@ -32,7 +34,7 @@
     var relTypesByName = _.indexBy(relTypes, 'name_b_a');
     $scope.ts = ts;
 
-    $scope.allowMultipleCaseClients = CRM.civicase.allowMultipleCaseClients;
+    $scope.allowMultipleCaseClients = allowMultipleCaseClients;
     $scope.roles = [];
     $scope.rolesFilter = '';
     $scope.rolesPage = 1;

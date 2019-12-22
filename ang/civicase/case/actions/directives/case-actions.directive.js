@@ -1,7 +1,8 @@
 (function (angular, $, _) {
   var module = angular.module('civicase');
 
-  module.directive('civicaseCaseActions', function ($window, $rootScope, $injector, dialogService, PrintMergeCaseAction) {
+  module.directive('civicaseCaseActions', function ($window, $rootScope, $injector, allowCaseLocks,
+    dialogService, PrintMergeCaseAction) {
     return {
       restrict: 'A',
       templateUrl: '~/civicase/case/actions/directives/case-actions.directive.html',
@@ -16,9 +17,9 @@
     /**
      * Angular JS's link function for civicaseCaseActions Directive
      *
-     * @param {Object} $scope
-     * @param {Object} element
-     * @param {Object} attributes
+     * @param {object} $scope the directive's scope
+     * @param {object} element element reference
+     * @param {object} attributes the element attributes
      */
     function civicaseCaseActionsLink ($scope, element, attributes) {
       var ts = CRM.ts('civicase');
@@ -35,7 +36,7 @@
       $scope.isActionAllowed = function (action) {
         var isActionAllowed = true;
         var isLockCaseAction = _.startsWith(action.action, 'lockCases');
-        var isCaseLockAllowed = CRM.civicase.allowCaseLocks;
+        var isCaseLockAllowed = allowCaseLocks;
         var caseActionService = getCaseActionService(action.action);
 
         if (caseActionService && caseActionService.isActionAllowed) {
@@ -108,10 +109,10 @@
       });
 
       /**
-       * Get Case Action Service
+       * Get Case Action Service using the action's name.
        *
-       * @param {String} action
-       * @return {Object}
+       * @param {string} action the action name.
+       * @returns {object} a service reference or null.
        */
       function getCaseActionService (action) {
         try {
@@ -122,10 +123,7 @@
       }
 
       /**
-       * Get Case Action Service
-       *
-       * @param {String} action
-       * @return {Object/Boolean}
+       * Refreshes the case data for each one of the defined actions.
        */
       function refreshDataForActions () {
         _.each($scope.caseActions, function (action) {

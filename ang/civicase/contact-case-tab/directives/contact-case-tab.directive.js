@@ -18,8 +18,11 @@
    * @param {Function} formatCase the format case service
    * @param {object} Contact the contact service
    * @param {object} ContactsCache the contacts cache service
+   * @param {string} newCaseWebformClient the new case web form client configuration value
+   * @param {string} newCaseWebformUrl the new case web form url configuration value
    */
-  function CivicaseContactCaseTabController ($scope, crmApi, formatCase, Contact, ContactsCache) {
+  function CivicaseContactCaseTabController ($scope, crmApi, formatCase, Contact, ContactsCache,
+    newCaseWebformClient, newCaseWebformUrl) {
     var commonConfigs = {
       isLoaded: false,
       showSpinner: false,
@@ -32,8 +35,8 @@
 
     $scope.caseDetailsLoaded = false;
     $scope.contactId = Contact.getContactIDFromUrl();
-    $scope.newCaseWebformUrl = CRM.civicase.newCaseWebformUrl;
-    $scope.newCaseWebformClient = CRM.civicase.newCaseWebformClient;
+    $scope.newCaseWebformUrl = newCaseWebformUrl;
+    $scope.newCaseWebformClient = newCaseWebformClient;
     $scope.casesListConfig = [
       {
         name: 'opened',

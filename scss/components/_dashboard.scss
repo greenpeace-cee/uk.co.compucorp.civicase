@@ -19,9 +19,11 @@
   background: $gray-light;
 }
 
-.civicase__dashboard__add-case {
+.civicase__dashboard__action-btn {
+  background: $brand-primary;
   border: 1px solid $crm-white;
   border-radius: 2px;
+  color: $crm-white;
   line-height: 20px;
   margin-right: 15px;
   margin-top: 7px;
@@ -32,6 +34,11 @@
     margin-right: 5px;
     position: relative;
     top: 2px;
+  }
+
+  &--light {
+    background: $crm-white;
+    color: $brand-primary;
   }
 }
 

@@ -25,6 +25,7 @@
    * @param {object} $scope $scope
    * @param {object} $document $document
    * @param {object} BulkActions bulk actions service
+   * @param {object[]} CaseDetailsTabs list of case tabs
    * @param {object} crmApi crm api service
    * @param {object} formatActivity format activity service
    * @param {object} formatCase format case service
@@ -40,7 +41,7 @@
    * @param {object} CaseType case type service
    */
   function civicaseCaseDetailsController ($location, $rootScope, $scope,
-    $document, BulkActions, crmApi, formatActivity, formatCase,
+    $document, BulkActions, CaseDetailsTabs, crmApi, formatActivity, formatCase,
     getActivityFeedUrl, getCaseQueryParams, $route, $timeout,
     CasesUtils, PrintMergeCaseAction, ts, ActivityType, CaseStatus, CaseType) {
     // The ts() and hs() functions help load strings for this module.
@@ -57,14 +58,10 @@
     $scope.bulkAllowed = BulkActions.isAllowed();
     $scope.caseTypesLength = _.size(caseTypes);
     $scope.CRM = CRM;
-    $scope.tabs = [
-      { name: 'summary', label: ts('Summary') },
-      { name: 'activities', label: ts('Activities') },
-      { name: 'people', label: ts('People') },
-      { name: 'files', label: ts('Files') }
-    ];
+    $scope.tabs = CaseDetailsTabs;
 
     (function init () {
+      $scope.$watch('activeTab', activeTabWatcher);
       $scope.$watch('isFocused', isFocusedWatcher);
       $scope.$watch('item', itemWatcher);
       $scope.$on('civicase::activity-feed::show-activity-panel',
@@ -391,6 +388,21 @@
         });
       }
       return ret;
+    }
+
+    /**
+     * Watches for activeTab variable and update the active tab
+     * placeholder and content template.
+     */
+    function activeTabWatcher () {
+      var activeCaseTab = _.find(CaseDetailsTabs, {
+        name: $scope.activeTab
+      });
+
+      if (activeCaseTab && activeCaseTab.service) {
+        $scope.activeTabPlaceholderUrl = activeCaseTab.service.getPlaceholderUrl();
+        $scope.activeTabContentUrl = activeCaseTab.service.activeTabContentUrl();
+      }
     }
 
     /**
