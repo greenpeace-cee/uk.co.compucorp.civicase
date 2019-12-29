@@ -1,16 +1,19 @@
 (function (angular, $, _, CRM) {
-  var module = angular.module('civicase');
+  var module = angular.module('civicase-base');
 
   module.service('DateHelper', DateHelper);
 
+  /**
+   * Date Helper service.
+   */
   function DateHelper () {
     /**
      * Formats Date in sent format
      * Default format is (DD/MM/YYYY)
      *
-     * @param {String} date ISO string
-     * @param {String} format ISO string
-     * @return {String} the formatted date
+     * @param {string} date ISO string
+     * @param {string} format moment's date format
+     * @returns {string} the formatted date
      */
     this.formatDate = function (date, format) {
       format = format || 'DD/MM/YYYY';

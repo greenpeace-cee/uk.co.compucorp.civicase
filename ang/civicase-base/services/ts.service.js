@@ -1,5 +1,5 @@
 (function (angular, _, crmTs) {
-  var module = angular.module('civicase');
+  var module = angular.module('civicase-base');
   var CIVICASE_DOMAIN = 'uk.co.compucorp.civicase';
 
   module.factory('ts', function () {
@@ -14,8 +14,9 @@
    * Also fixes an issue with ts not working properly with
    * domains unless window.ts is used.
    *
-   * @param {String} message
-   * @param {Object} options
+   * @param {string} message the message to translate.
+   * @param {object} options translation replacement words and options.
+   * @returns {string} the translated string.
    */
   function ts (message, options) {
     return crmTs(message, _.assign({}, {
