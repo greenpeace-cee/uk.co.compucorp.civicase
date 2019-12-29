@@ -167,7 +167,7 @@
         } else {
           $scope.viewingCaseDetails = _.findWhere($scope.cases, { id: id });
           $scope.viewingCase = id;
-          $scope.viewingCaseTab = 'summary';
+          $scope.viewingCaseTab = 'Summary';
         }
       }
       setPageTitle();
