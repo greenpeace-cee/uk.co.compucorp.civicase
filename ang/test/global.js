@@ -12,7 +12,9 @@
   CRM.angular.requires.civicase = ['civicase-base', 'crmAttachment', 'crmUi', 'crmUtil', 'ngRoute', 'angularFileUpload', 'bw.paging', 'crmRouteBinder', 'crmResource', 'ui.bootstrap', 'uibTabsetClass', 'dialogService'];
 
   CRM.checkPerm = jasmine.createSpy('checkPerm');
+  CRM.confirm = jasmine.createSpy('confirm');
   CRM.loadForm = jasmine.createSpy('loadForm');
+  CRM.status = jasmine.createSpy('status');
   CRM.url = jasmine.createSpy('url').and.callFake((url, searchParamsObject) => {
     const searchParamsString = CRM._.chain(searchParamsObject)
       .map((value, key) => {
