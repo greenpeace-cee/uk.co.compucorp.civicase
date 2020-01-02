@@ -3,12 +3,15 @@
 
   module.service('EmailManagersCaseAction', EmailManagersCaseAction);
 
+  /**
+   *
+   */
   function EmailManagersCaseAction () {
     /**
      * Click event handler for the Action
      *
      * @param {Array} cases
-     * @param {Object} action
+     * @param {object} action
      * @param {Function} callbackFn
      */
     this.doAction = function (cases, action, callbackFn) {
@@ -20,20 +23,24 @@
         }
       });
 
-      var popupPath = {
-        path: 'civicrm/activity/email/add',
-        query: {
-          action: 'add',
-          reset: 1,
-          cid: _.uniq(managers).join(',')
+      if (managers.length > 0) {
+        var popupPath = {
+          path: 'civicrm/activity/email/add',
+          query: {
+            action: 'add',
+            reset: 1,
+            cid: _.uniq(managers).join(',')
+          }
+        };
+
+        if (cases.length === 1) {
+          popupPath.query.caseid = cases[0].id;
         }
-      };
 
-      if (cases.length === 1) {
-        popupPath.query.caseid = cases[0].id;
+        return popupPath;
+      } else {
+        CRM.alert('Please add a contact as a case manager', 'No case managers available', 'error');
       }
-
-      return popupPath;
     };
   }
 })(angular, CRM.$, CRM._);
