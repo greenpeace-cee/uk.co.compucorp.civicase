@@ -4,7 +4,7 @@
   module.service('EmailManagersCaseAction', EmailManagersCaseAction);
 
   /**
-   *
+   * EmailManagersCaseAction service callback function.
    */
   function EmailManagersCaseAction () {
     /**

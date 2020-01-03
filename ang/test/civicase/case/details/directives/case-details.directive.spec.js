@@ -362,10 +362,15 @@
     });
 
     describe('when creating an email', function () {
-      var loadFormArguments, loadFormBefore;
+      var loadFormArguments;
+      var caseClients, caseClientsIds;
 
       beforeEach(function () {
         initController();
+        caseClients = _.filter($scope.item.contacts, function (contact) {
+          return contact.role === 'Client';
+        });
+        caseClientsIds = _.map(caseClients, function (client) { return client.contact_id; });
         spyOn($rootScope, '$broadcast');
         loadFormBefore = CRM.loadForm;
         CRM.loadForm = jasmine.createSpy();
@@ -388,7 +393,7 @@
           caseid: $scope.item.id,
           atype: '3',
           reset: 1,
-          context: 'standalone'
+          cid: caseClientsIds.join(',')
         });
       });
 
