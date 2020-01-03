@@ -8,8 +8,9 @@
    */
   function EmailManagersCaseAction () {
     /**
-     * Click event handler for the Action.
-     * Spits error if no case manager, opens popup otherwise
+     * Returns the configuration options to open up a mail popup to
+     * communicate with the case managers. Displays an error message
+     * when no case managers have been assigned to the case.
      *
      * @param {Array} cases
      * @param {object} action
@@ -24,7 +25,6 @@
         }
       });
 
-      // Spit error if no case manager is present
       if (managers.length === 0) {
         CRM.alert('Please add a contact as a case manager', 'No case managers available', 'error');
 
