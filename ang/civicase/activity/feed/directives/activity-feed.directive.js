@@ -397,7 +397,7 @@
           'subject', 'details', 'activity_type_id', 'status_id',
           'source_contact_name', 'target_contact_name', 'assignee_contact_name',
           'activity_date_time', 'is_star', 'original_id', 'tag_id.name', 'tag_id.description',
-          'tag_id.color', 'file_id', 'is_overdue', 'case_id', 'priority_id'
+          'tag_id.color', 'file_id', 'is_overdue', 'case_id', 'priority_id', 'case_id.contacts'
         ],
         options: options
       };
@@ -414,7 +414,7 @@
       } else if (!$scope.displayOptions.include_case) {
         params.case_id = { 'IS NULL': 1 };
       } else {
-        returnParams.return = returnParams.return.concat(['case_id.case_type_id', 'case_id.status_id', 'case_id.contacts']);
+        returnParams.return = returnParams.return.concat(['case_id.case_type_id', 'case_id.status_id']);
       }
 
       _.each($scope.filters, function (val, key) {
