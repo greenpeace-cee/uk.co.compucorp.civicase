@@ -12,7 +12,7 @@
      * @param {object} scope object
      */
     function civicaseDashboardTabsetAffixLink (scope) {
-      var $tabNavigation = $('.civicase__crm-dashboard > ul.nav');
+      var $tabNavigation = $('.civicase__crm-dashboard__tabs');
       var $civicrmMenu = $('#civicrm-menu');
       var $toolbarDrawer = $('#toolbar .toolbar-drawer');
       var $tabContainer = $('.civicase__crm-dashboard');
