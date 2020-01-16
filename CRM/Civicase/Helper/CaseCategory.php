@@ -117,7 +117,16 @@ class CRM_Civicase_Helper_CaseCategory {
       ]);
 
     } catch (Exception $e) {
-      return [];
+      if (!$caseTypeCategoryName || strtolower($caseTypeCategoryName) == 'cases') {
+        return [];
+      }
+
+      return [
+        'Case' => ucfirst($caseTypeCategoryName),
+        'Cases' => ucfirst($caseTypeCategoryName) . 's',
+        'case' => strtolower($caseTypeCategoryName),
+        'cases' => strtolower($caseTypeCategoryName) . 's',
+      ];
     }
 
     if (empty($result['id'])) {
