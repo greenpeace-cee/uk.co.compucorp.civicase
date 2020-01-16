@@ -1,7 +1,46 @@
+/* stylelint-disable selector-max-id  */
+/* stylelint-disable selector-max-compound-selectors */
+
 .___outside-namespace {
   .page-civicrm-dashboard,
   // targets root `page-civicrm` page and doesn't target child `page-civicrm-event` pages (for example):
   .page-civicrm:not([class*=' page-civicrm-']) {
     @include case-page;
+  }
+
+  .civicase__crm-dashboard {
+    &.ui-tabs,
+    .tab-content {
+      background: none;
+    }
+
+    &__tabs.affix {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      z-index: 9999;
+    }
+  }
+
+  #crm-container .civicase__crm-dashboard__tabs {
+    background-color: $crm-white;
+    // 20px is the original padding for `.nav-pills-horizontal` but there is no corresponding variable:
+    padding: 0 0 0 20px;
+
+    .ui-tab {
+      background: none;
+      border: 0;
+      padding: 0;
+
+      .ui-tabs-anchor {
+        height: auto;
+        // the original rule has !important:
+        padding: $panel-body-padding !important;
+      }
+    }
+  }
+
+  #crm-container .ui-tabs-panel {
+    padding: 18px; // 18px comes from the tab's header box shadow
   }
 }
