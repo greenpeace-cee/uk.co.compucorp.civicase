@@ -41,6 +41,9 @@
         template: '<civicase-my-activities-tab></civicase-my-activities-tab>'
       });
     });
+    CRM.$('#configure-dashlet').on("click", "a[href='/civicrm/dashboard?reset=1']", function (event) {
+      location.reload();
+    });
   })(angular, CRM.$, CRM._);
 
   CRM.$(document).one('crmLoad', function(){
