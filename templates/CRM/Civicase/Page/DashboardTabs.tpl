@@ -1,7 +1,7 @@
 <div class="civicase__crm-dashboard">
   <ul
     civicase-crm-dashboard-tabset-affix
-    class="civicase__affix__activity-filters nav nav-pills nav-pills-horizontal nav-pills-horizontal-default civicase__crm-dashboard__tabs">
+    class="civicase__affix__activity-filters nav nav-pills nav-pills-horizontal nav-pills-horizontal-default civicase__tabs">
     <li><a href="#dashboard" data-toggle="tab">Dashboard</a></li>
     <li class=""><a href="#myactivities" data-toggle="tab">My Activities</a></li>
   </ul>
