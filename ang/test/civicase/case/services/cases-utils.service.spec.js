@@ -30,5 +30,17 @@
         expect(ContactsCache.add).toHaveBeenCalledWith([1, 2, 3, 4]);
       });
     });
+
+    describe('getAllCaseClientContactIdsFromAllContacts()', function () {
+      var cases;
+
+      beforeEach(function () {
+        cases = CasesData.get().values[0];
+      });
+
+      it('fetches all contacts of the case', function () {
+        expect(CasesUtils.getAllCaseClientContactIdsFromAllContacts(cases.contacts)).toEqual(['170']);
+      });
+    });
   });
 })(CRM._);

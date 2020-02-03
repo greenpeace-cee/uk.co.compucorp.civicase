@@ -2,14 +2,15 @@
 ((_, getCrmUrl) => {
   describe('DraftEmailOrPdfActivityForm', () => {
     let activity, activityFormUrl, checkIfDraftEmailOrPDFActivity,
-      DraftEmailOrPdfActivityForm, expectedActivityFormUrl;
+      DraftEmailOrPdfActivityForm, CasesUtils, expectedActivityFormUrl;
 
     beforeEach(module('civicase', 'civicase-base', 'civicase.data'));
 
     beforeEach(inject((_activitiesMockData_, _checkIfDraftEmailOrPDFActivity_,
-      _DraftEmailOrPdfActivityForm_) => {
+      _DraftEmailOrPdfActivityForm_, _CasesUtils_) => {
       checkIfDraftEmailOrPDFActivity = _checkIfDraftEmailOrPDFActivity_;
       DraftEmailOrPdfActivityForm = _DraftEmailOrPdfActivityForm_;
+      CasesUtils = _CasesUtils_;
       activity = _.chain(_activitiesMockData_.get())
         .first()
         .cloneDeep()
@@ -29,7 +30,7 @@
         expectedActivityFormUrl = getCrmUrl('civicrm/activity/email/add', {
           action: 'add',
           caseId: activity.case_id,
-          context: 'standalone',
+          cid: CasesUtils.getAllCaseClientContactIdsFromAllContacts(activity['case_id.contacts']).join(','),
           draft_id: activity.id,
           reset: '1'
         });

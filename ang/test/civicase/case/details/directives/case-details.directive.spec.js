@@ -316,21 +316,23 @@
   });
 
   describe('civicaseCaseDetailsController', function () {
-    var $controller, $provide, $rootScope, $route, $scope, CasesData, crmApiMock;
+    var $controller, $provide, $rootScope, $route, $scope, CasesData, CasesUtils, crmApiMock, loadFormBefore;
 
     beforeEach(module('civicase', 'civicase.data', function (_$provide_) {
       $provide = _$provide_;
+      crmApiMock = jasmine.createSpy('crmApi');
+
+      $provide.value('crmApi', crmApiMock);
     }));
 
-    beforeEach(inject(function (_$controller_, $q, _$rootScope_, _$route_, _CasesData_) {
+    beforeEach(inject(function (_$controller_, $q, _$rootScope_, _$route_, _CasesData_, _CasesUtils_) {
       $controller = _$controller_;
       $rootScope = _$rootScope_;
       $route = _$route_;
       CasesData = _CasesData_;
-      crmApiMock = jasmine.createSpy('crmApi').and
-        .returnValue($q.defer().promise);
-
-      $provide.value('crmApi', crmApiMock);
+      CasesUtils = _CasesUtils_;
+      crmApiMock.and
+        .returnValue($q.resolve({ values: CasesData.get() }));
     }));
 
     describe('viewing the case', function () {
@@ -363,14 +365,9 @@
 
     describe('when creating an email', function () {
       var loadFormArguments;
-      var caseClients, caseClientsIds;
 
       beforeEach(function () {
         initController();
-        caseClients = _.filter($scope.item.contacts, function (contact) {
-          return contact.role === 'Client';
-        });
-        caseClientsIds = _.map(caseClients, function (client) { return client.contact_id; });
         spyOn($rootScope, '$broadcast');
         loadFormBefore = CRM.loadForm;
         CRM.loadForm = jasmine.createSpy();
@@ -393,7 +390,7 @@
           caseid: $scope.item.id,
           atype: '3',
           reset: 1,
-          cid: caseClientsIds.join(',')
+          cid: CasesUtils.getAllCaseClientContactIdsFromAllContacts($scope.item.contacts).join(',')
         });
       });
 
