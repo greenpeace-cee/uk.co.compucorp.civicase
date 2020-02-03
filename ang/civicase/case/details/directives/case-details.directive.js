@@ -81,18 +81,12 @@
      * Opens the popup for Creating Email
      */
     $scope.createEmail = function () {
-      var caseClients = _.filter($scope.item.contacts, function (contact) {
-        return contact.role === 'Client';
-      });
-
-      var caseClientsIds = _.map(caseClients, function (client) { return client.contact_id; });
-
       var createEmailURLParams = {
         action: 'add',
         caseid: $scope.item.id,
         atype: '3',
         reset: 1,
-        cid: caseClientsIds.join(',')
+        cid: CasesUtils.getAllCaseClientContactIdsFromAllContacts($scope.item.contacts).join(',')
       };
 
       CRM

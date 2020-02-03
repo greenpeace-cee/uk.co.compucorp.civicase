@@ -12,9 +12,11 @@
      * communicate with the case managers. Displays an error message
      * when no case managers have been assigned to the case.
      *
-     * @param {Array} cases
-     * @param {object} action
-     * @param {Function} callbackFn
+     * @param {Array} cases object
+     * @param {object} action to be performed
+     * @param {Function} callbackFn the callback function
+     *
+     * @returns {string} path for the popup
      */
     this.doAction = function (cases, action, callbackFn) {
       var managers = [];
@@ -26,7 +28,7 @@
       });
 
       if (managers.length === 0) {
-        CRM.alert('Please add a contact as a case manager', 'No case managers available', 'error');
+        CRM.alert('Please add a contact as a case manager.', 'No case managers available', 'error');
 
         return;
       }
