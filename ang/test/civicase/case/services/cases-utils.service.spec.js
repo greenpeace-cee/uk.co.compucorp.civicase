@@ -31,15 +31,15 @@
       });
     });
 
-    describe('getAllCaseClientContactIdsFromAllContacts()', function () {
+    describe('getAllCaseClientContactIds()', function () {
       var cases;
 
       beforeEach(function () {
         cases = CasesData.get().values[0];
       });
 
-      it('fetches all contacts of the case', function () {
-        expect(CasesUtils.getAllCaseClientContactIdsFromAllContacts(cases.contacts)).toEqual(['170']);
+      it('fetches all client contact ids of the case', function () {
+        expect(CasesUtils.getAllCaseClientContactIds(cases.contacts)).toEqual(['170']);
       });
     });
   });

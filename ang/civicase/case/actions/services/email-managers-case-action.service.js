@@ -12,8 +12,8 @@
      * communicate with the case managers. Displays an error message
      * when no case managers have been assigned to the case.
      *
-     * @param {Array} cases object
-     * @param {object} action to be performed
+     * @param {Array} cases list of cases
+     * @param {object} action action to be performed
      * @param {Function} callbackFn the callback function
      *
      * @returns {string} path for the popup

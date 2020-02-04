@@ -6,7 +6,7 @@
   /**
    * Draft email or PDF activity form service.
    *
-   * @param {Function} CasesUtils service
+   * @param {object} CasesUtils cases utility service
    * @param {Function} checkIfDraftEmailOrPDFActivity the check if draft email or pdf activity function.
    */
   function DraftEmailOrPdfActivityForm (CasesUtils, checkIfDraftEmailOrPDFActivity) {
@@ -21,7 +21,7 @@
       return getCrmUrl('civicrm/activity/email/add', {
         action: 'add',
         caseId: activity.case_id,
-        cid: CasesUtils.getAllCaseClientContactIdsFromAllContacts(activity['case_id.contacts']).join(','),
+        cid: CasesUtils.getAllCaseClientContactIds(activity['case_id.contacts']).join(','),
         draft_id: activity.id,
         reset: '1'
       });

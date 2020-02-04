@@ -30,7 +30,7 @@
         expectedActivityFormUrl = getCrmUrl('civicrm/activity/email/add', {
           action: 'add',
           caseId: activity.case_id,
-          cid: CasesUtils.getAllCaseClientContactIdsFromAllContacts(activity['case_id.contacts']).join(','),
+          cid: CasesUtils.getAllCaseClientContactIds(activity['case_id.contacts']).join(','),
           draft_id: activity.id,
           reset: '1'
         });

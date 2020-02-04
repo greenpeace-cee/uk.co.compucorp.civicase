@@ -390,7 +390,7 @@
           caseid: $scope.item.id,
           atype: '3',
           reset: 1,
-          cid: CasesUtils.getAllCaseClientContactIdsFromAllContacts($scope.item.contacts).join(',')
+          cid: CasesUtils.getAllCaseClientContactIds($scope.item.contacts).join(',')
         });
       });
 

@@ -29,7 +29,7 @@
           EmailManagersCaseAction.doAction(caseObj, 'email', jasmine.any(Function));
         });
 
-        it('calls CRM.alert and return', function () {
+        it('shows an error messages', function () {
           expect(CRM.alert).toHaveBeenCalledWith('Please add a contact as a case manager.', 'No case managers available', 'error');
         });
       });

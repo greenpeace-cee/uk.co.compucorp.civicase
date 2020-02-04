@@ -5,7 +5,7 @@
     /**
      * Fetch additional information about the contacts
      *
-     * @param {Array} cases array to be fetched from
+     * @param {Array} cases list of cases
      */
     this.fetchMoreContactsInformation = function (cases) {
       var contacts = [];
@@ -18,12 +18,13 @@
     };
 
     /**
-     * Process all case clients contacts ids.
+     * Get all case clients ids for a case contacts list
      *
-     * @param {Array} contacts of a case.
-     * @returns {Array} of all client ids.
+     * @param {Array} contacts contacts of a case
+     *
+     * @returns {Array} contact contacts of all client ids
      */
-    this.getAllCaseClientContactIdsFromAllContacts = function (contacts) {
+    this.getAllCaseClientContactIds = function (contacts) {
       return _.chain(contacts)
         .filter(function (contact) {
           return contact.role === 'Client';
