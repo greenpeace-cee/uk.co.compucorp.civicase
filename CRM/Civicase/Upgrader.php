@@ -145,7 +145,7 @@ class CRM_Civicase_Upgrader extends CRM_Civicase_Upgrader_Base {
     $this->addNav([
       'label' => ts('Manage Cases', ['domain' => 'uk.co.compucorp.civicase']),
       'name' => 'Manage Cases',
-      'url' => 'civicrm/case/a/#/case/list',
+      'url' => 'civicrm/case/a/?case_type_category=cases#/case/list?cf=%7B"case_type_category":"cases"%7D',
       'permission' => 'access my cases and activities,access all cases and activities',
       'operator' => 'OR',
       'separator' => 0,
@@ -556,7 +556,7 @@ class CRM_Civicase_Upgrader extends CRM_Civicase_Upgrader_Base {
    *   The queue requires that true is returned on successful upgrade, but we
    *   use exceptions to indicate an error instead.
    */
-  public static function runStepUpgrade(CRM_Queue_TaskContext $context, $step) {
+  public static function runStepUpgrade(CRM_Queue_TaskContext $context, object $step) {
     $step->apply();
     return TRUE;
   }
